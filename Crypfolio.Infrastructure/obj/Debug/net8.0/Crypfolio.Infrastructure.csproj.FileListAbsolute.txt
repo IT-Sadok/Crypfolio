@@ -15,3 +15,4 @@ C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Infrastructure\obj\Debug\net8.0\
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Infrastructure\obj\Debug\net8.0\refint\Crypfolio.Infrastructure.dll
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Infrastructure\obj\Debug\net8.0\Crypfolio.Infrastructure.pdb
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Infrastructure\obj\Debug\net8.0\ref\Crypfolio.Infrastructure.dll
+C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Infrastructure\obj\Debug\net8.0\Crypfolio.Infrastructure.sourcelink.json

@@ -16,8 +16,8 @@ public class AssetDto
     public Guid? WalletId { get; set; }
     public Wallet? Wallet { get; set; }
 
-    public Guid? AccountId { get; set; }
-    public Account? Account { get; set; }
+    public Guid? ExchangeAccountId { get; set; }
+    public ExchangeAccount? ExchangeAccount { get; set; }
     
     public AssetSourceType SourceType { get; set; }
 

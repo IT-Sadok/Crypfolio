@@ -8,7 +8,7 @@ public class Transaction
     public Guid AssetId { get; set; } 
 
     public Guid? WalletId { get; set; }
-    public Guid? AccountId { get; set; }
+    public Guid? ExchangeAccountId { get; set; }
     public decimal Amount { get; set; }
 
     public TransactionType Type { get; set; }

@@ -1,6 +1,6 @@
 namespace Crypfolio.Domain.Entities;
 
-public class Account
+public class ExchangeAccount
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

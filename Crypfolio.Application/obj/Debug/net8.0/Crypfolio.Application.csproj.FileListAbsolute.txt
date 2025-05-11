@@ -13,3 +13,4 @@ C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Application\obj\Debug\net8.0\Cry
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Application\obj\Debug\net8.0\refint\Crypfolio.Application.dll
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Application\obj\Debug\net8.0\Crypfolio.Application.pdb
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Application\obj\Debug\net8.0\ref\Crypfolio.Application.dll
+C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Application\obj\Debug\net8.0\Crypfolio.Application.sourcelink.json

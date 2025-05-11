@@ -25,7 +25,7 @@ public class AssetService : IAssetService
             AverageBuyPrice = asset.AverageBuyPrice,
             UsdValue = asset.UsdValue,
             WalletId = asset.WalletId,
-            AccountId = asset.AccountId,
+            ExchangeAccountId = asset.ExchangeAccountId,
             SourceType = asset.SourceType,
             RetrievedAt = asset.RetrievedAt
         }).ToList();
@@ -45,7 +45,7 @@ public class AssetService : IAssetService
             AverageBuyPrice = asset.AverageBuyPrice,
             UsdValue = asset.UsdValue,
             WalletId = asset.WalletId,
-            AccountId = asset.AccountId,
+            ExchangeAccountId = asset.ExchangeAccountId,
             SourceType = asset.SourceType,
             RetrievedAt = asset.RetrievedAt
         };
@@ -66,7 +66,7 @@ public class AssetService : IAssetService
             AverageBuyPrice = asset.AverageBuyPrice,
             UsdValue = asset.UsdValue,
             WalletId = asset.WalletId,
-            AccountId = asset.AccountId,
+            ExchangeAccountId = asset.ExchangeAccountId,
             SourceType = asset.SourceType,
             RetrievedAt = asset.RetrievedAt
         };
@@ -81,7 +81,7 @@ public class AssetService : IAssetService
             Balance = dto.Balance,
             AverageBuyPrice = dto.AverageBuyPrice,
             WalletId = dto.WalletId,
-            AccountId = dto.AccountId,
+            ExchangeAccountId = dto.ExchangeAccountId,
             SourceType = dto.SourceType
         };
 

@@ -9,6 +9,6 @@ public class CreateAssetDto
     public decimal Balance { get; set; }
     public decimal AverageBuyPrice { get; set; }
     public Guid? WalletId { get; set; }
-    public Guid? AccountId { get; set; }
+    public Guid? ExchangeAccountId { get; set; }
     public AssetSourceType SourceType { get; set; }
 }

@@ -9,3 +9,4 @@ C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Domain\obj\Debug\net8.0\Crypfoli
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Domain\obj\Debug\net8.0\refint\Crypfolio.Domain.dll
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Domain\obj\Debug\net8.0\Crypfolio.Domain.pdb
 C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Domain\obj\Debug\net8.0\ref\Crypfolio.Domain.dll
+C:\Users\Beam\RiderProjects\Crypfolio\Crypfolio.Domain\obj\Debug\net8.0\Crypfolio.Domain.sourcelink.json
