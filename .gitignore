@@ -23,8 +23,8 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in/
-[Oo]bj/
+**[Bb]in/
+**[Oo]bj/
 [Ll]og/
 [Ll]ogs/
 build/
@@ -82,15 +82,4 @@ project.lock.json
 # Visual Studio 2015
 .vs/
 
-Crypfolio.API/bin
-Crypfolio.API/obj
 Crypfolio.API/Properties
-
-Crypfolio.Application/bin
-Crypfolio.Application/obj
-
-Crypfolio.Domain/bin
-Crypfolio.Domain/obj
-
-Crypfolio.Infrastructure/bin
-Crypfolio.Infrastructure/obj
