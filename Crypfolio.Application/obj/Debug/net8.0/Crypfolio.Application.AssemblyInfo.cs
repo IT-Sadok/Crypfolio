@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Crypfolio.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ea3b617f1dafbd2c5996a159dc74dc33d831594")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+45edf324c10a816ce71d519ad8c1aba1dd890146")]
 [assembly: System.Reflection.AssemblyProductAttribute("Crypfolio.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Crypfolio.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
