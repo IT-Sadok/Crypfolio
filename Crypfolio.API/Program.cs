@@ -1,11 +1,17 @@
+using Crypfolio.Api.Endpoints;
+using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Application.Services;
 using Crypfolio.Infrastructure.Repositories;
+using Mapster;
+using Crypfolio.Application.Mapping; 
 
+MappingConfig.RegisterMappings();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddMapster();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -27,6 +33,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+//app.MapControllers();
+
+app.MapAssetEndpoints();
 
 app.Run();
+
+

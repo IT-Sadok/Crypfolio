@@ -1,6 +1,7 @@
 using Crypfolio.Application.DTOs;
 using Crypfolio.Domain.Entities;
 using Crypfolio.Application.Interfaces;
+using Mapster;
 
 namespace Crypfolio.Application.Services;
 
@@ -16,75 +17,24 @@ public class AssetService : IAssetService
     public async Task<IEnumerable<AssetDto>> GetAllAsync()
     {
         var assets = await _repository.GetAllAsync();
-        return assets.Select(asset => new AssetDto
-        {
-            Id = asset.Id,
-            Symbol = asset.Symbol,
-            Name = asset.Name,
-            Balance = asset.Balance,
-            AverageBuyPrice = asset.AverageBuyPrice,
-            UsdValue = asset.UsdValue,
-            WalletId = asset.WalletId,
-            ExchangeAccountId = asset.ExchangeAccountId,
-            SourceType = asset.SourceType,
-            RetrievedAt = asset.RetrievedAt
-        }).ToList();
+        return assets.Adapt<IEnumerable<AssetDto>>();
     }
 
     public async Task<AssetDto?> GetByIdAsync(Guid id)
     {
         var asset = await _repository.GetByIdAsync(id);
-        if (asset == null) return null;
-
-        return new AssetDto
-        {
-            Id = asset.Id,
-            Symbol = asset.Symbol,
-            Name = asset.Name,
-            Balance = asset.Balance,
-            AverageBuyPrice = asset.AverageBuyPrice,
-            UsdValue = asset.UsdValue,
-            WalletId = asset.WalletId,
-            ExchangeAccountId = asset.ExchangeAccountId,
-            SourceType = asset.SourceType,
-            RetrievedAt = asset.RetrievedAt
-        };
+        return asset?.Adapt<AssetDto>();
     }
     
     public async Task<AssetDto?> GetBySymbolAsync(string symbol)
     {
         var asset = await _repository.GetBySymbolAsync(symbol);
-        if (asset == null)
-            return null;
-
-        return new AssetDto
-        {
-            Id = asset.Id,
-            Symbol = asset.Symbol,
-            Name = asset.Name,
-            Balance = asset.Balance,
-            AverageBuyPrice = asset.AverageBuyPrice,
-            UsdValue = asset.UsdValue,
-            WalletId = asset.WalletId,
-            ExchangeAccountId = asset.ExchangeAccountId,
-            SourceType = asset.SourceType,
-            RetrievedAt = asset.RetrievedAt
-        };
+        return asset?.Adapt<AssetDto>();
     }
 
     public async Task AddAsync(CreateAssetDto dto)
     {
-        var asset = new Asset
-        {
-            Symbol = dto.Symbol,
-            Name = dto.Name,
-            Balance = dto.Balance,
-            AverageBuyPrice = dto.AverageBuyPrice,
-            WalletId = dto.WalletId,
-            ExchangeAccountId = dto.ExchangeAccountId,
-            SourceType = dto.SourceType
-        };
-
+        var asset = dto.Adapt<Asset>();
         await _repository.AddAsync(asset);
     }
     
@@ -94,10 +44,7 @@ public class AssetService : IAssetService
         if (asset == null)
             throw new Exception("Asset not found");
 
-        asset.Name = dto.Name;
-        asset.Balance = dto.Balance;
-        asset.AverageBuyPrice = dto.AverageBuyPrice;
-
+        dto.Adapt(asset); 
         await _repository.UpdateAsync(asset);
     }
 
