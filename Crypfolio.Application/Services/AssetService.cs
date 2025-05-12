@@ -14,42 +14,42 @@ public class AssetService : IAssetService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<AssetDto>> GetAllAsync()
+    public async Task<IEnumerable<AssetDto>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var assets = await _repository.GetAllAsync();
+        var assets = await _repository.GetAllAsync(cancellationToken);
         return assets.Adapt<IEnumerable<AssetDto>>();
     }
 
-    public async Task<AssetDto?> GetByIdAsync(Guid id)
+    public async Task<AssetDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetByIdAsync(id);
+        var asset = await _repository.GetByIdAsync(id, cancellationToken);
         return asset?.Adapt<AssetDto>();
     }
     
-    public async Task<AssetDto?> GetBySymbolAsync(string symbol)
+    public async Task<AssetDto?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetBySymbolAsync(symbol);
+        var asset = await _repository.GetBySymbolAsync(symbol, cancellationToken);
         return asset?.Adapt<AssetDto>();
     }
 
-    public async Task AddAsync(CreateAssetDto dto)
+    public async Task AddAsync(CreateAssetDto dto, CancellationToken cancellationToken)
     {
         var asset = dto.Adapt<Asset>();
-        await _repository.AddAsync(asset);
+        await _repository.AddAsync(asset, cancellationToken);
     }
     
-    public async Task UpdateAsync(AssetDto dto)
+    public async Task UpdateAsync(AssetDto dto, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetByIdAsync(dto.Id);
+        var asset = await _repository.GetByIdAsync(dto.Id, cancellationToken);
         if (asset == null)
             throw new Exception("Asset not found");
 
         dto.Adapt(asset); 
-        await _repository.UpdateAsync(asset);
+        await _repository.UpdateAsync(asset, cancellationToken);
     }
 
-    public async Task DeleteAsync(string symbol)
+    public async Task DeleteAsync(string symbol, CancellationToken cancellationToken)
     {
-        await _repository.DeleteAsync(symbol);
+        await _repository.DeleteAsync(symbol, cancellationToken);
     }
 }

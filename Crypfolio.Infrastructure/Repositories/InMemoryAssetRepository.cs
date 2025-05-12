@@ -7,28 +7,29 @@ public class InMemoryAssetRepository : IAssetRepository
 {
     private readonly List<Asset> _assets = new();
 
-    public Task<IEnumerable<Asset>> GetAllAsync() => Task.FromResult(_assets.AsEnumerable());
+    public Task<IEnumerable<Asset>> GetAllAsync(CancellationToken cancellationToken) 
+        => Task.FromResult(_assets.AsEnumerable());
 
-    public Task<Asset?> GetByIdAsync(Guid id)
+    public Task<Asset?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var asset = _assets.FirstOrDefault(a => a.Id == id);
         return Task.FromResult(asset);
     }
 
-    public Task<Asset?> GetBySymbolAsync(string symbol)
+    public Task<Asset?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken)
     {
         var asset = _assets.FirstOrDefault(a => a.Symbol.Equals(symbol));
         return Task.FromResult(asset);
     }
 
-    public Task AddAsync(Asset asset)
+    public Task AddAsync(Asset asset, CancellationToken cancellationToken)
     {
         asset.Id = Guid.NewGuid();
         _assets.Add(asset);
         return Task.CompletedTask;
     }
 
-    public Task UpdateAsync(Asset asset)
+    public Task UpdateAsync(Asset asset, CancellationToken cancellationToken)
     {
         var index = _assets.FindIndex(a => a.Id == asset.Id);
         if (index != -1)
@@ -39,7 +40,7 @@ public class InMemoryAssetRepository : IAssetRepository
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(string symbol)
+    public Task DeleteAsync(string symbol, CancellationToken cancellationToken)
     {
         var asset = _assets.FirstOrDefault(a => a.Symbol.Equals(symbol));
         if (asset != null)
