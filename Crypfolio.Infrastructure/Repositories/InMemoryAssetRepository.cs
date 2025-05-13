@@ -18,7 +18,7 @@ public class InMemoryAssetRepository : IAssetRepository
 
     public Task<Asset?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken)
     {
-        var asset = _assets.FirstOrDefault(a => a.Symbol.Equals(symbol));
+        var asset = _assets.FirstOrDefault(a => a.Symbol.Equals(symbol.ToLowerInvariant()));
         return Task.FromResult(asset);
     }
 
@@ -36,13 +36,13 @@ public class InMemoryAssetRepository : IAssetRepository
         {
             _assets[index] = asset;
         }
-
+        
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(string symbol, CancellationToken cancellationToken)
     {
-        var asset = _assets.FirstOrDefault(a => a.Symbol.Equals(symbol));
+        var asset = _assets.FirstOrDefault(a => a.Symbol.Equals(symbol.ToLowerInvariant()));
         if (asset != null)
         {
             _assets.Remove(asset);
