@@ -1,7 +1,7 @@
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Domain.Entities;
 
-namespace Crypfolio.Infrastructure.Repositories;
+namespace Crypfolio.Infrastructure.Persistence;
 
 public class InMemoryAssetRepository : IAssetRepository
 {
