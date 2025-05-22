@@ -1,15 +1,16 @@
 using Mapster;
 using System.Text;
 using Crypfolio.Api.Endpoints;
-using Crypfolio.Application.Interfaces;
-using Crypfolio.Application.Services;
+using Crypfolio.Domain.Entities;
+using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Mapping;
-using Crypfolio.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Crypfolio.Application.Services;
+using Crypfolio.Application.Interfaces;
+using Crypfolio.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Crypfolio.Domain.Entities;
 
 MappingConfig.RegisterMappings();
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +32,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.Password.RequireDigit = true;
-        options.Password.RequireUppercase = false;
+        options.Password.RequireUppercase = true;
         options.Password.RequireLowercase = false;
         options.Password.RequiredLength = 6;
     })
@@ -78,6 +79,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapAssetEndpoints();
+
+app.MapAuthEndpoints();
+
 
 app.Run();
 
