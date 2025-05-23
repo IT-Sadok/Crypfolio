@@ -45,7 +45,11 @@ public class AssetService : IAssetService
         if (asset == null)
             Result.Fail("Asset is not found");
 
-        dto.Adapt(asset); 
+        asset.Name = dto.Name;
+        asset.Symbol = dto.Symbol;
+        asset.Balance = dto.Balance;
+        asset.AverageBuyPrice = dto.AverageBuyPrice;
+     
         await _repository.UpdateAsync(asset, cancellationToken);
         return Result.Success();
     }
@@ -56,7 +60,11 @@ public class AssetService : IAssetService
         if (asset == null)
             Result.Fail("Asset is not found");
 
-        dto.Adapt(asset); 
+        asset.Name = dto.Name;
+        asset.Symbol = dto.Symbol;
+        asset.Balance = dto.Balance;
+        asset.AverageBuyPrice = dto.AverageBuyPrice;
+        
         await _repository.UpdateAsync(asset, cancellationToken);
         return Result.Success();
     }

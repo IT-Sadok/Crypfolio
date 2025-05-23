@@ -11,19 +11,19 @@ public static class AssetEndpoints
         app.MapGet(Routes.Assets, async (IAssetService service, CancellationToken ct) =>
         {
             var assets = await service.GetAllAsync(ct);
-            return !assets.Any() ? Results.NotFound() : Results.Ok(assets);
+            return !assets.Any() ? null : Results.Ok(assets);
         });
         
         app.MapGet(Routes.AssetsById, async (Guid id, IAssetService service, CancellationToken ct) =>
         {
             var asset = await service.GetByIdAsync(id, ct);
-            return asset is null ? Results.NotFound() : Results.Ok(asset);
+            return asset is null ? null : Results.Ok(asset);
         });
         
         app.MapGet(Routes.AssetsBySymbol, async (string symbol, IAssetService service, CancellationToken ct) =>
         {
             var asset = await service.GetBySymbolAsync(symbol, ct);
-            return asset is null ? Results.NotFound() : Results.Ok(asset);
+            return asset is null ? null : Results.Ok(asset);
         });
 
         app.MapPost(Routes.Assets, async (CreateAssetDto dto, IAssetService service, CancellationToken ct) =>

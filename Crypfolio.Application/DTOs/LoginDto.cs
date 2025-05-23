@@ -1,6 +1,6 @@
 namespace Crypfolio.Application.DTOs;
 
-public class LoginRequestDto
+public class LoginDto
 {
     public string Email { get; set; } = default!;
     public string Password { get; set; } = default!;

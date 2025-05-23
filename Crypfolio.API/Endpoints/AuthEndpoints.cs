@@ -1,8 +1,6 @@
 using Crypfolio.API.Constants;
 using Crypfolio.Application.DTOs;
-using Crypfolio.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Crypfolio.Application.Interfaces;
 
 namespace Crypfolio.Api.Endpoints;
 
@@ -12,42 +10,24 @@ public static class AuthEndpoints
     {
         endpoints.MapPost(Routes.Register, async (
             RegisterDto dto,
-            UserManager<ApplicationUser> userManager) =>
+            IAuthService authService) =>
         {
-            var user = new ApplicationUser
-            {
-                UserName = dto.Email,
-                Email = dto.Email,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName
-            };
+            var (success, errors) = await authService.RegisterAsync(dto);
+            if (!success)
+                return Results.BadRequest(new { errors });
 
-            var result = await userManager.CreateAsync(user, dto.Password);
-
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description);
-                return Results.BadRequest(errors);
-            }
-
-            return Results.Ok("User registered successfully.");
+            return Results.Ok(new { message = "Registration successful" });
         });
         
         endpoints.MapPost(Routes.Login, async (
-            LoginRequestDto request,
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager) =>
+            LoginDto dto,
+            IAuthService authService) =>
         {
-            var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
-                return Results.BadRequest("Invalid email or password");
+            var (success, token, errors) = await authService.LoginAsync(dto);
+            if (!success)
+                return Results.BadRequest(new { errors });
 
-            var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (!result.Succeeded)
-                return Results.BadRequest("Invalid email or password");
-
-            // replace this with JWT or cookie auth?
-            return Results.Ok("Login successful");
+            return Results.Ok(new { token });
         });
 
         return endpoints;
