@@ -13,4 +13,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     
     public DbSet<Asset> Assets { get; set; }
     //public DbSet<Wallet> Wallets { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Optional: Customize column types here
+        modelBuilder.Entity<Asset>()
+            .Property(a => a.AverageBuyPrice)
+            .HasPrecision(18, 4);
+        modelBuilder.Entity<Asset>()
+            .Property(a => a.Balance)
+            .HasPrecision(18, 6);
+        modelBuilder.Entity<Asset>()
+            .Property(a => a.UsdValue)
+            .HasPrecision(18, 2);
+    }
 }
