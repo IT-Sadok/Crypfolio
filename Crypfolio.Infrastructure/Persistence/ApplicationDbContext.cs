@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
     
     public DbSet<Asset> Assets { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     //public DbSet<Wallet> Wallets { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

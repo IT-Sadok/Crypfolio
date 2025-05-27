@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
@@ -15,18 +16,25 @@ public class AuthService : IAuthService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IConfiguration _configuration;
     private readonly UserManager<ApplicationUser> _userManager;
-
+    private readonly IUserDataRepository _userDataRepository;
+    private readonly ITokenService _tokenService;
+    
     public AuthService(
-        UserManager<ApplicationUser> userManager, 
+        UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IUserDataRepository userDataRepository,
+        ITokenService tokenService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
+        _userDataRepository = userDataRepository;
+        _tokenService = tokenService;
     }
 
-    public async Task<(bool Success, string[] Errors)> RegisterAsync(RegisterDto dto, CancellationToken cancellationToken = default)
+    public async Task<(bool Success, string[] Errors)> RegisterAsync(RegisterDto dto,
+        CancellationToken cancellationToken = default)
     {
         var user = new ApplicationUser
         {
@@ -42,40 +50,76 @@ public class AuthService : IAuthService
 
         return (true, Array.Empty<string>());
     }
-    
-    public async Task<(bool Success, string Token, string[] Errors)> LoginAsync(LoginDto dto, CancellationToken cancellationToken = default)
+
+    public async Task<(bool Success, string AccessToken, string RefreshToken, string[] Errors)> LoginAsync(LoginDto dto, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
-            return (false, string.Empty, new[] { "Invalid login attempt." });
+            return (false, "", "", new[] { "Invalid login attempt." });
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!result.Succeeded)
-            return (false, string.Empty, new[] { "Invalid login attempt." });
+            return (false, "", "", new[] { "Invalid login attempt." });
 
         var roles = await _userManager.GetRolesAsync(user);
+        var accessToken = _tokenService.GenerateAccessToken(user, roles);
+        var refreshToken = _tokenService.GenerateRefreshToken();
 
-        var claims = new List<Claim>
+        var existingToken = await _userDataRepository.GetRefreshTokenAsync(user.Id, dto.DeviceId);
+        if (existingToken != null)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
+            existingToken.Token = refreshToken;
+            existingToken.CreatedAt = DateTime.UtcNow;
+            existingToken.ExpiresAt = DateTime.UtcNow.AddDays(30);
+            existingToken.IsRevoked = false;
+            existingToken.RevokedAt = null;
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            await _userDataRepository.UpdateAsync(existingToken, cancellationToken);
+        }
+        else
+        {
+            var newToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = refreshToken,
+                UserId = Guid.Parse(user.Id),
+                DeviceId = dto.DeviceId,
+                DeviceName = "", // optionally
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(30),
+                IsRevoked = false
+            };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            await _userDataRepository.AddAsync(newToken, cancellationToken);
+        }
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds
-        );
-
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-        return (true, tokenString, Array.Empty<string>());
+        return (true, accessToken, refreshToken, Array.Empty<string>());
     }
+
+
+    public async Task<(string? AccessToken, string? RefreshToken)> RefreshAccessTokenAsync(string refreshToken, string deviceId, CancellationToken cancellationToken)
+    {
+        var tokenEntity = await _userDataRepository.GetRefreshTokenAsync(refreshToken);
+        if (tokenEntity == null || !tokenEntity.IsActive || tokenEntity.DeviceId != deviceId)
+            return (null, null);
+
+        var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
+        if (user == null)
+            return (null, null);
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var newAccessToken = _tokenService.GenerateAccessToken(user, roles);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        tokenEntity.Token = newRefreshToken;
+        tokenEntity.CreatedAt = DateTime.UtcNow;
+        tokenEntity.ExpiresAt = DateTime.UtcNow.AddDays(30);
+        tokenEntity.RevokedAt = null;
+        tokenEntity.IsRevoked = false;
+
+        await _userDataRepository.UpdateAsync(tokenEntity, cancellationToken);
+
+        return (newAccessToken, newRefreshToken);
+    }
+
 }

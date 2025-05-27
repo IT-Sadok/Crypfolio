@@ -21,13 +21,22 @@ public static class AuthEndpoints
         
         endpoints.MapPost(Routes.Login, async (
             LoginDto dto,
-            IAuthService authService) =>
+            IAuthService authService,
+            HttpResponse response) =>
         {
-            var (success, token, errors) = await authService.LoginAsync(dto);
+            var (success, accessToken, refreshToken, errors) = await authService.LoginAsync(dto);
             if (!success)
                 return Results.BadRequest(new { errors });
 
-            return Results.Ok(new { token });
+            response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(30),
+                SameSite = SameSiteMode.Strict
+            });
+
+            return Results.Ok(new { accessToken });
         });
 
         return endpoints;

@@ -17,9 +17,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAssetRepository, AssetRepository>();
+builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<AssetService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
