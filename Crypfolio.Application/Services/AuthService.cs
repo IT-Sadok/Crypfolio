@@ -76,7 +76,7 @@ public class AuthService : IAuthService
             existingToken.IsRevoked = false;
             existingToken.RevokedAt = null;
 
-            await _userDataRepository.UpdateAsync(existingToken, cancellationToken);
+            //await _userDataRepository.UpdateAsync(existingToken, cancellationToken);
         }
         else
         {
@@ -125,7 +125,7 @@ public class AuthService : IAuthService
         tokenEntity.RevokedAt = null;
         tokenEntity.IsRevoked = false;
 
-        await _userDataRepository.UpdateAsync(tokenEntity, cancellationToken);
+        //await _userDataRepository.UpdateAsync(tokenEntity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         
         response.AccessToken = newAccessToken;

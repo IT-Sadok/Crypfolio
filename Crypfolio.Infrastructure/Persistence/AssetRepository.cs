@@ -13,33 +13,36 @@ public class AssetRepository : IAssetRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Asset>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Asset>> GetAllAsync(CancellationToken cancellationToken = default, bool isTracking = false)
     {
-        return await _context.Assets.AsNoTracking().ToListAsync(cancellationToken);
+        var query = _context.Assets.AsQueryable();
+        if (!isTracking)
+            query = query.AsNoTracking();
+
+        return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<Asset?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Asset?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, bool isTracking = false)
     {
-        return await _context.Assets.FindAsync( new object[] { id }, cancellationToken);
+        var query = _context.Assets.AsQueryable();
+        if (!isTracking)
+            query = query.AsNoTracking();
+
+        return await query.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
-    public async Task<Asset?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken)
+    public async Task<Asset?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken = default, bool isTracking = false)
     {
-        return await _context.Assets
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a=> a.Symbol == symbol.ToLowerInvariant(), cancellationToken);
+        var query = _context.Assets.AsQueryable();
+        if (!isTracking)
+            query = query.AsNoTracking();
+
+        return await query.FirstOrDefaultAsync(a => a.Symbol == symbol.ToLowerInvariant(), cancellationToken);
     }
 
-    public Task AddAsync(Asset asset, CancellationToken cancellationToken)
+    public async Task AddAsync(Asset asset, CancellationToken cancellationToken)
     {
-        _context.Assets.Add(asset);
-        return Task.CompletedTask;
-    }
-
-    public Task UpdateAsync(Asset asset, CancellationToken cancellationToken)
-    {
-        _context.Assets.Update(asset);
-        return Task.CompletedTask;
+        await _context.Assets.AddAsync(asset, cancellationToken);
     }
 
     public async Task DeleteAsync(string symbol, CancellationToken cancellationToken)

@@ -53,7 +53,7 @@ public class AssetService : IAssetService
         asset.Balance = dto.Balance;
         asset.AverageBuyPrice = dto.AverageBuyPrice;
      
-        await _repository.UpdateAsync(asset, cancellationToken);
+        //await _repository.UpdateAsync(asset, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         
         return Result.Success();
@@ -70,7 +70,7 @@ public class AssetService : IAssetService
         asset.Balance = dto.Balance;
         asset.AverageBuyPrice = dto.AverageBuyPrice;
         
-        await _repository.UpdateAsync(asset, cancellationToken);
+        //await _repository.UpdateAsync(asset, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         
         return Result.Success();

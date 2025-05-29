@@ -13,32 +13,30 @@ public class UserDataRepository : IUserDataRepository
         _context = context;
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
+    public async Task<RefreshToken?> GetRefreshTokenAsync(string token, bool isTracking = false)
     {
-        return await _context.RefreshTokens
-            .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Token == token);
+        var query = _context.RefreshTokens.AsQueryable();
+        if (!isTracking)
+            query = query.AsNoTracking();
+
+        return await query.FirstOrDefaultAsync(t => t.Token == token);
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenAsync(Guid userId, string deviceId)
+    public async Task<RefreshToken?> GetRefreshTokenAsync(Guid userId, string deviceId, bool isTracking = false)
     {
-        return await _context.RefreshTokens
-            .AsNoTracking()
+        var query = _context.RefreshTokens.AsQueryable();
+        if (!isTracking)
+            query = query.AsNoTracking();
+
+        return await query
             .Where(t => t.UserId == userId && t.DeviceId == deviceId && !t.IsRevoked)
             .OrderByDescending(t => t.CreatedAt)
             .FirstOrDefaultAsync();
     }
 
-    public Task AddAsync(RefreshToken token, CancellationToken cancellationToken)
+    public async Task AddAsync(RefreshToken token, CancellationToken cancellationToken)
     {
-        _context.RefreshTokens.Add(token);
-        return Task.CompletedTask;
-    }
-
-    public Task UpdateAsync(RefreshToken token, CancellationToken cancellationToken)
-    {
-        _context.RefreshTokens.Update(token);
-        return Task.CompletedTask; 
+        await _context.RefreshTokens.AddAsync(token, cancellationToken);
     }
 }
 
