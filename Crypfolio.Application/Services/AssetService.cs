@@ -9,10 +9,12 @@ namespace Crypfolio.Application.Services;
 public class AssetService : IAssetService
 {
     private readonly IAssetRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AssetService(IAssetRepository repository)
+    public AssetService(IAssetRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<AssetDto>> GetAllAsync(CancellationToken cancellationToken)
@@ -37,6 +39,7 @@ public class AssetService : IAssetService
     {
         var asset = dto.Adapt<Asset>();
         await _repository.AddAsync(asset, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
     
     public async Task<Result> UpdateAsync(AssetDto dto, CancellationToken cancellationToken)
@@ -51,6 +54,8 @@ public class AssetService : IAssetService
         asset.AverageBuyPrice = dto.AverageBuyPrice;
      
         await _repository.UpdateAsync(asset, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
         return Result.Success();
     }
     
@@ -66,11 +71,14 @@ public class AssetService : IAssetService
         asset.AverageBuyPrice = dto.AverageBuyPrice;
         
         await _repository.UpdateAsync(asset, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
         return Result.Success();
     }
 
     public async Task DeleteAsync(string symbol, CancellationToken cancellationToken)
     {
         await _repository.DeleteAsync(symbol, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

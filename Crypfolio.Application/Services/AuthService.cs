@@ -1,36 +1,30 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Crypfolio.Application.Services;
 
 public class AuthService : IAuthService
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly IConfiguration _configuration;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserDataRepository _userDataRepository;
     private readonly ITokenService _tokenService;
+    private readonly IUnitOfWork _unitOfWork;
     
     public AuthService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IConfiguration configuration,
         IUserDataRepository userDataRepository,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _configuration = configuration;
         _userDataRepository = userDataRepository;
         _tokenService = tokenService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<(bool Success, string[] Errors)> RegisterAsync(RegisterDto dto,
@@ -47,25 +41,33 @@ public class AuthService : IAuthService
             return (false, result.Errors.Select(e => e.Description).ToArray());
 
         // optionally: await _userManager.AddToRoleAsync(user, "User");
-
+        
         return (true, Array.Empty<string>());
     }
 
-    public async Task<(bool Success, string AccessToken, string RefreshToken, string[] Errors)> LoginAsync(LoginDto dto, CancellationToken cancellationToken = default)
+    public async Task<AuthResultDto> LoginAsync(LoginDto dto, CancellationToken cancellationToken = default)
     {
+        var response = new AuthResultDto
+        {
+            Success = false,
+            AccessToken = "",
+            RefreshToken = "",
+            Errors = new[] { "Invalid login attempt." }
+        };
+
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
-            return (false, "", "", new[] { "Invalid login attempt." });
+            return response;
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!result.Succeeded)
-            return (false, "", "", new[] { "Invalid login attempt." });
+            return response;
 
         var roles = await _userManager.GetRolesAsync(user);
         var accessToken = _tokenService.GenerateAccessToken(user, roles);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
-        var existingToken = await _userDataRepository.GetRefreshTokenAsync(user.Id, dto.DeviceId);
+        var existingToken = await _userDataRepository.GetRefreshTokenAsync(Guid.Parse(user.Id), dto.DeviceId);
         if (existingToken != null)
         {
             existingToken.Token = refreshToken;
@@ -93,19 +95,25 @@ public class AuthService : IAuthService
             await _userDataRepository.AddAsync(newToken, cancellationToken);
         }
 
-        return (true, accessToken, refreshToken, Array.Empty<string>());
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        response.Success = true;
+        response.AccessToken = accessToken;
+        response.RefreshToken = refreshToken;
+        response.Errors = Array.Empty<string>();
+        return response;
     }
 
-
-    public async Task<(string? AccessToken, string? RefreshToken)> RefreshAccessTokenAsync(string refreshToken, string deviceId, CancellationToken cancellationToken)
+    public async Task<TokenPairDto> RefreshAccessTokenAsync(string refreshToken, string deviceId, CancellationToken cancellationToken = default)
     {
+        var response = new TokenPairDto { AccessToken = null, RefreshToken = null };
         var tokenEntity = await _userDataRepository.GetRefreshTokenAsync(refreshToken);
         if (tokenEntity == null || !tokenEntity.IsActive || tokenEntity.DeviceId != deviceId)
-            return (null, null);
+            return response;
 
         var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
         if (user == null)
-            return (null, null);
+            return response;
 
         var roles = await _userManager.GetRolesAsync(user);
         var newAccessToken = _tokenService.GenerateAccessToken(user, roles);
@@ -118,8 +126,11 @@ public class AuthService : IAuthService
         tokenEntity.IsRevoked = false;
 
         await _userDataRepository.UpdateAsync(tokenEntity, cancellationToken);
-
-        return (newAccessToken, newRefreshToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        response.AccessToken = newAccessToken;
+        response.RefreshToken = newRefreshToken;
+        return response;
     }
 
 }

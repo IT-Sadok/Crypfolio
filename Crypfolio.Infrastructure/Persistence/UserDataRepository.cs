@@ -16,29 +16,29 @@ public class UserDataRepository : IUserDataRepository
     public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
     {
         return await _context.RefreshTokens
+            .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Token == token);
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenAsync(string userId, string deviceId)
+    public async Task<RefreshToken?> GetRefreshTokenAsync(Guid userId, string deviceId)
     {
-        var uid = Guid.Parse(userId);
-
         return await _context.RefreshTokens
-            .Where(t => t.UserId == uid && t.DeviceId == deviceId && !t.IsRevoked)
+            .AsNoTracking()
+            .Where(t => t.UserId == userId && t.DeviceId == deviceId && !t.IsRevoked)
             .OrderByDescending(t => t.CreatedAt)
             .FirstOrDefaultAsync();
     }
 
-    public async Task AddAsync(RefreshToken token, CancellationToken cancellationToken)
+    public Task AddAsync(RefreshToken token, CancellationToken cancellationToken)
     {
         _context.RefreshTokens.Add(token);
-        await _context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
-    public async Task UpdateAsync(RefreshToken token, CancellationToken cancellationToken)
+    public Task UpdateAsync(RefreshToken token, CancellationToken cancellationToken)
     {
         _context.RefreshTokens.Update(token);
-        await _context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask; 
     }
 }
 

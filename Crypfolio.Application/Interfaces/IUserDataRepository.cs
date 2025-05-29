@@ -5,7 +5,7 @@ namespace Crypfolio.Application.Interfaces;
 public interface IUserDataRepository
 {
     Task<RefreshToken?> GetRefreshTokenAsync(string token);
-    Task<RefreshToken?> GetRefreshTokenAsync(string userId, string deviceId);
+    Task<RefreshToken?> GetRefreshTokenAsync(Guid userId, string deviceId);
     Task UpdateAsync(RefreshToken token, CancellationToken cancellationToken);
     Task AddAsync(RefreshToken token, CancellationToken cancellationToken);
     

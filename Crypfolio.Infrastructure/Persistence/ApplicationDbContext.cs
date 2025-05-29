@@ -18,16 +18,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // Optional: Customize column types here
-        modelBuilder.Entity<Asset>()
-            .Property(a => a.AverageBuyPrice)
-            .HasPrecision(18, 4);
-        modelBuilder.Entity<Asset>()
-            .Property(a => a.Balance)
-            .HasPrecision(18, 6);
-        modelBuilder.Entity<Asset>()
-            .Property(a => a.UsdValue)
-            .HasPrecision(18, 2);
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        
+        
     }
 }

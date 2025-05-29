@@ -24,11 +24,19 @@ public static class AuthEndpoints
             IAuthService authService,
             HttpResponse response) =>
         {
-            var (success, accessToken, refreshToken, errors) = await authService.LoginAsync(dto);
-            if (!success)
-                return Results.BadRequest(new { errors });
+            var result = await authService.LoginAsync(dto);
+            if (!result.Success)
+                return Results.BadRequest(new { result.Errors });
 
-            response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(30),
+                SameSite = SameSiteMode.Strict
+            });
+            
+            response.Cookies.Append("deviceId", dto.DeviceId, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -36,9 +44,25 @@ public static class AuthEndpoints
                 SameSite = SameSiteMode.Strict
             });
 
-            return Results.Ok(new { accessToken });
+            return Results.Ok(new { result.AccessToken });
         });
 
+        endpoints.MapPost(Routes.Refresh, async (
+            HttpRequest request,
+            IAuthService authService) =>
+        {
+            var refreshToken = request.Cookies["refreshToken"];
+            var deviceId = request.Cookies["deviceId"];
+            if (string.IsNullOrEmpty(refreshToken))
+                return Results.Unauthorized();
+
+            var newAccessToken = await authService.RefreshAccessTokenAsync(refreshToken, deviceId);
+            if (newAccessToken is null)
+                return Results.Unauthorized();
+
+            return Results.Ok(new { accessToken = newAccessToken });
+        });
+        
         return endpoints;
     }
 }

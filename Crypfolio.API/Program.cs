@@ -22,6 +22,7 @@ builder.Services.AddScoped<AssetService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 

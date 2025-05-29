@@ -7,7 +7,6 @@ namespace Crypfolio.Infrastructure.Persistence;
 public class AssetRepository : IAssetRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly List<Asset> _assets = new();
 
     public AssetRepository(ApplicationDbContext context)
     {
@@ -16,7 +15,7 @@ public class AssetRepository : IAssetRepository
 
     public async Task<IEnumerable<Asset>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Assets.ToListAsync(cancellationToken);
+        return await _context.Assets.AsNoTracking().ToListAsync(cancellationToken);
     }
 
     public async Task<Asset?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -26,19 +25,21 @@ public class AssetRepository : IAssetRepository
 
     public async Task<Asset?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken)
     {
-        return await _context.Assets.FindAsync(new object[] { symbol.ToLowerInvariant() }, cancellationToken);
+        return await _context.Assets
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a=> a.Symbol == symbol.ToLowerInvariant(), cancellationToken);
     }
 
-    public async Task AddAsync(Asset asset, CancellationToken cancellationToken)
+    public Task AddAsync(Asset asset, CancellationToken cancellationToken)
     {
         _context.Assets.Add(asset);
-        await _context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
-    public async Task UpdateAsync(Asset asset, CancellationToken cancellationToken)
+    public Task UpdateAsync(Asset asset, CancellationToken cancellationToken)
     {
         _context.Assets.Update(asset);
-        await _context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
     public async Task DeleteAsync(string symbol, CancellationToken cancellationToken)
@@ -47,7 +48,6 @@ public class AssetRepository : IAssetRepository
         if (asset != null)
         {
             _context.Assets.Remove(asset);
-            await _context.SaveChangesAsync(cancellationToken); 
         }
     }
 }
