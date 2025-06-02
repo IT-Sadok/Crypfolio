@@ -1,4 +1,6 @@
 using System.Text;
+using Crypfolio.Application.Interfaces;
+using Crypfolio.Application.Services;
 using Crypfolio.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +59,19 @@ public static class ServiceExtensions
                 };
             });
 
+        return services;
+    }
+
+    public static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IAssetRepository, AssetRepository>();
+        services.AddScoped<IUserDataRepository, UserDataRepository>();
+        services.AddScoped<AssetService>();
+        services.AddScoped<IAssetService, AssetService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
         return services;
     }
 }
