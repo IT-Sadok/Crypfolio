@@ -10,4 +10,12 @@
       <ProjectReference Include="..\Crypfolio.Domain\Crypfolio.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Mapster" Version="7.4.0" />
+      <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
+      <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.1.2" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
+    </ItemGroup>
+
 </Project>

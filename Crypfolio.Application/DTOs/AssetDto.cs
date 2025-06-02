@@ -14,10 +14,7 @@ public class AssetDto
     public decimal UsdValue { get; set; }
     
     public Guid? WalletId { get; set; }
-    public Wallet? Wallet { get; set; }
-
     public Guid? ExchangeAccountId { get; set; }
-    public ExchangeAccount? ExchangeAccount { get; set; }
     
     public AssetSourceType SourceType { get; set; }
 

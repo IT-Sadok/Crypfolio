@@ -1,18 +1,18 @@
-using Crypfolio.Application.Interfaces;
-using Crypfolio.Application.Services;
-using Crypfolio.Infrastructure.Repositories;
+using Mapster;
+using Crypfolio.Api.Endpoints;
+using Crypfolio.Application.Mapping;
+using Crypfolio.Infrastructure.Extensions;
 
+MappingConfig.RegisterMappings();
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+builder.Services.AddMapster();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<IAssetRepository, InMemoryAssetRepository>();
-builder.Services.AddSingleton<AssetService>();
-builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddServices();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -27,6 +27,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapAssetEndpoints();
+
+app.MapAuthEndpoints();
+
 
 app.Run();
+
+

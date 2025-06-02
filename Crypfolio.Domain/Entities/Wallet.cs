@@ -4,7 +4,7 @@ public class Wallet
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public User User { get; set; } = new();
+    public ApplicationUser User { get; set; } = new();
     
     public string Name { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
