@@ -44,7 +44,7 @@ public class AssetService : IAssetService
     
     public async Task<Result> UpdateAsync(AssetDto dto, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetByIdAsync(dto.Id, cancellationToken);
+        var asset = await _repository.GetByIdAsync(dto.Id, cancellationToken, true);
         if (asset == null)
             Result.Fail("Asset is not found");
 
@@ -61,7 +61,7 @@ public class AssetService : IAssetService
     
     public async Task<Result> UpdateBySymbolAsync(string symbol, AssetDto dto, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetBySymbolAsync(symbol, cancellationToken);
+        var asset = await _repository.GetBySymbolAsync(symbol, cancellationToken, true);
         if (asset == null)
             Result.Fail("Asset is not found");
 

@@ -6,7 +6,7 @@ namespace Crypfolio.Api.Endpoints;
 
 public static class AuthEndpoints
 {
-    public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
+    public static void MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(Routes.Register, async (
             RegisterDto dto,
@@ -62,7 +62,5 @@ public static class AuthEndpoints
 
             return Results.Ok(new { accessToken = newAccessToken });
         });
-        
-        return endpoints;
     }
 }

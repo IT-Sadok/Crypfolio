@@ -1,5 +1,6 @@
 using Mapster;
 using Crypfolio.Api.Endpoints;
+using Crypfolio.API.Endpoints;
 using Crypfolio.Application.Mapping;
 using Crypfolio.Infrastructure.Extensions;
 
@@ -28,9 +29,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapAssetEndpoints();
-
 app.MapAuthEndpoints();
-
+app.MapWalletEndpoints();
+app.MapExchangeAccountEndpoints();
 
 app.Run();
 

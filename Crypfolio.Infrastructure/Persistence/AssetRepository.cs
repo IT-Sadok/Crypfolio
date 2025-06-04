@@ -40,12 +40,12 @@ public class AssetRepository : IAssetRepository
         return await query.FirstOrDefaultAsync(a => a.Symbol == symbol.ToLowerInvariant(), cancellationToken);
     }
 
-    public async Task AddAsync(Asset asset, CancellationToken cancellationToken)
+    public async Task AddAsync(Asset asset, CancellationToken cancellationToken = default)
     {
         await _context.Assets.AddAsync(asset, cancellationToken);
     }
 
-    public async Task DeleteAsync(string symbol, CancellationToken cancellationToken)
+    public async Task DeleteAsync(string symbol, CancellationToken cancellationToken = default)
     {
         var asset = await _context.Assets.FindAsync(new object[] { symbol }, cancellationToken);
         if (asset != null)
