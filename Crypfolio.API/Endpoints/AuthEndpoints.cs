@@ -1,6 +1,7 @@
 using Crypfolio.API.Constants;
 using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Crypfolio.Api.Endpoints;
 
@@ -10,7 +11,7 @@ public static class AuthEndpoints
     {
         endpoints.MapPost(Routes.Register, async (
             RegisterDto dto,
-            IAuthService authService) =>
+            [FromServices] IAuthService authService) =>
         {
             var (success, errors) = await authService.RegisterAsync(dto);
             if (!success)
@@ -21,7 +22,7 @@ public static class AuthEndpoints
         
         endpoints.MapPost(Routes.Login, async (
             LoginDto dto,
-            IAuthService authService,
+            [FromServices] IAuthService authService,
             HttpResponse response) =>
         {
             var result = await authService.LoginAsync(dto);
@@ -49,7 +50,7 @@ public static class AuthEndpoints
 
         endpoints.MapPost(Routes.Refresh, async (
             HttpRequest request,
-            IAuthService authService) =>
+            [FromServices] IAuthService authService) =>
         {
             var refreshToken = request.Cookies["refreshToken"];
             var deviceId = request.Cookies["deviceId"];

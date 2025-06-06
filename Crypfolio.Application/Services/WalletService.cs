@@ -11,9 +11,9 @@ public class WalletService : IWalletService
     private readonly IWalletRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public WalletService(IWalletRepository repository, IUnitOfWork unitOfWork)
+    public WalletService(IUnitOfWork unitOfWork)
     {
-        _repository = repository;        
+        _repository = unitOfWork.Wallets;        
         _unitOfWork = unitOfWork;
     }
 
@@ -40,7 +40,7 @@ public class WalletService : IWalletService
     {
         var wallet = await _repository.GetByIdAsync(id, cancellationToken);
         if (wallet == null)
-            Result.Fail("Asset is not found");
+            return Result.Fail("Asset is not found");
         
         wallet.Name = walletDto.Name;
         wallet.WalletType = walletDto.WalletType;

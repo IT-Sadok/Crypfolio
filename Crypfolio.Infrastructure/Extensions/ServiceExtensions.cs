@@ -71,6 +71,10 @@ public static class ServiceExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IWalletService, WalletService>();
+        services.AddScoped<IWalletRepository, WalletRepository>();
+        services.AddScoped<IExchangeAccountService, ExchangeAccountService>();
+        services.AddScoped<IExchangeAccountRepository, ExchangeAccountRepository>();
         
         return services;
     }

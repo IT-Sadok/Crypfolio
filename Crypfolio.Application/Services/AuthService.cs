@@ -16,15 +16,14 @@ public class AuthService : IAuthService
     public AuthService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IUserDataRepository userDataRepository,
         ITokenService tokenService,
         IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _userDataRepository = userDataRepository;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
+        _userDataRepository = unitOfWork.UserData;
     }
 
     public async Task<(bool Success, string[] Errors)> RegisterAsync(RegisterDto dto,
@@ -132,5 +131,4 @@ public class AuthService : IAuthService
         response.RefreshToken = newRefreshToken;
         return response;
     }
-
 }

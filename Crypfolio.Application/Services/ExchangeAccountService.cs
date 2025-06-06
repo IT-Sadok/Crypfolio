@@ -11,9 +11,9 @@ public class ExchangeAccountService : IExchangeAccountService
     private readonly IExchangeAccountRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ExchangeAccountService(IExchangeAccountRepository repository, IUnitOfWork unitOfWork)
+    public ExchangeAccountService(IUnitOfWork unitOfWork)
     {
-        _repository = repository;
+        _repository = unitOfWork.ExchangeAccounts;
         _unitOfWork = unitOfWork;
     }
 

@@ -1,3 +1,5 @@
+using Crypfolio.Domain.Enums;
+
 namespace Crypfolio.Application.DTOs;
 
 public class WalletDto
@@ -6,5 +8,5 @@ public class WalletDto
     public string Name { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Blockchain { get; set; } = string.Empty;
-    public string WalletType { get; set; } = string.Empty;
+    public WalletType WalletType { get; set; } = WalletType.Unknown;
 }

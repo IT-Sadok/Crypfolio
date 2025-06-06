@@ -13,5 +13,7 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
             .WithMany(a => a.Transactions)
             .HasForeignKey(t => t.AccountSourceId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Property(a => a.Amount).HasPrecision(18, 6);
     }
 }

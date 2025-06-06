@@ -11,9 +11,9 @@ public class AssetService : IAssetService
     private readonly IAssetRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AssetService(IAssetRepository repository, IUnitOfWork unitOfWork)
+    public AssetService(IUnitOfWork unitOfWork)
     {
-        _repository = repository;
+        _repository = unitOfWork.Assets;
         _unitOfWork = unitOfWork;
     }
 
@@ -46,7 +46,7 @@ public class AssetService : IAssetService
     {
         var asset = await _repository.GetByIdAsync(dto.Id, cancellationToken, true);
         if (asset == null)
-            Result.Fail("Asset is not found");
+            return Result.Fail("Asset is not found");
 
         asset.Name = dto.Name;
         asset.Symbol = dto.Symbol;
@@ -63,7 +63,7 @@ public class AssetService : IAssetService
     {
         var asset = await _repository.GetBySymbolAsync(symbol, cancellationToken, true);
         if (asset == null)
-            Result.Fail("Asset is not found");
+            return Result.Fail("Asset is not found");
 
         asset.Name = dto.Name;
         asset.Symbol = dto.Symbol;
