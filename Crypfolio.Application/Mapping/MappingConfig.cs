@@ -7,14 +7,14 @@ public static class MappingConfig
 {
     public static void RegisterMappings()
     {
-        TypeAdapterConfig<CreateAssetDto, Asset>.NewConfig()
-            .Map(asset => asset.Symbol, dto => LowerCaseValue(dto.Symbol))
+        TypeAdapterConfig<AssetCreateDto, Asset>.NewConfig()
+            .Map(asset => asset.Ticker, dto => LowerCaseValue(dto.Ticker))
             .IgnoreNullValues(true);
         TypeAdapterConfig<Asset, AssetDto>.NewConfig()
-            .Map(dest => dest.Symbol, src => LowerCaseValue(src.Symbol))
+            .Map(dest => dest.Ticker, src => LowerCaseValue(src.Ticker))
             .IgnoreNullValues(true);
         TypeAdapterConfig<AssetDto, Asset>.NewConfig()
-            .Map(dest => dest.Symbol, src => LowerCaseValue(src.Symbol))            
+            .Map(dest => dest.Ticker, src => LowerCaseValue(src.Ticker))            
             .IgnoreNullValues(true);
 
     }

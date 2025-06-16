@@ -42,7 +42,7 @@ public class WalletService : IWalletService
         if (wallet == null)
             return Result.Fail("Asset is not found");
         
-        wallet.Name = walletDto.Name;
+        wallet.AccountName = walletDto.Name;
         wallet.WalletType = walletDto.WalletType;
         wallet.Blockchain = walletDto.Blockchain;
         

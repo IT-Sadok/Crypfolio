@@ -31,13 +31,42 @@ public class AssetRepository : IAssetRepository
         return await query.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
-    public async Task<Asset?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken = default, bool isTracking = false)
+    public async Task<Asset?> GetByTickerAsync(string ticker, CancellationToken cancellationToken = default, bool isTracking = false)
     {
         var query = _context.Assets.AsQueryable();
         if (!isTracking)
             query = query.AsNoTracking();
 
-        return await query.FirstOrDefaultAsync(a => a.Symbol == symbol.ToLowerInvariant(), cancellationToken);
+        return await query.FirstOrDefaultAsync(a => a.Ticker == ticker.ToLowerInvariant(), cancellationToken);
+    }
+    
+    public async Task<Asset?> GetByNameAndAccountSourceIdAsync(string name, Guid? accoutSourceId,
+        CancellationToken cancellationToken)
+    {
+        return await _context.Assets.FirstOrDefaultAsync(a => 
+            a.Name == name && 
+            (a.ExchangeAccountId == accoutSourceId || a.WalletId == accoutSourceId), 
+            cancellationToken);
+    }
+    
+    public async Task UpsertAssetAsync(Asset asset, CancellationToken cancellationToken)
+    {
+        var existing = await GetByNameAndAccountSourceIdAsync(
+            asset.Name, 
+            asset.ExchangeAccountId ?? asset.WalletId, 
+            cancellationToken);
+
+        if (existing is null)
+        {
+            asset.Id = Guid.NewGuid();
+            await _context.Assets.AddAsync(asset, cancellationToken);
+        }
+        else
+        {
+            existing.Balance = asset.Balance;
+            existing.RetrievedAt = asset.RetrievedAt;
+            _context.Assets.Update(existing);
+        }
     }
 
     public async Task AddAsync(Asset asset, CancellationToken cancellationToken = default)
@@ -45,9 +74,9 @@ public class AssetRepository : IAssetRepository
         await _context.Assets.AddAsync(asset, cancellationToken);
     }
 
-    public async Task DeleteAsync(string symbol, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string ticker, CancellationToken cancellationToken = default)
     {
-        var asset = await _context.Assets.FindAsync(new object[] { symbol }, cancellationToken);
+        var asset = await _context.Assets.FindAsync(new object[] { ticker }, cancellationToken);
         if (asset != null)
         {
             _context.Assets.Remove(asset);

@@ -29,13 +29,13 @@ public class AssetService : IAssetService
         return asset?.Adapt<AssetDto>();
     }
     
-    public async Task<AssetDto?> GetBySymbolAsync(string symbol, CancellationToken cancellationToken)
+    public async Task<AssetDto?> GetByTickerAsync(string ticker, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetBySymbolAsync(symbol, cancellationToken);
+        var asset = await _repository.GetByTickerAsync(ticker, cancellationToken);
         return asset?.Adapt<AssetDto>();
     }
 
-    public async Task AddAsync(CreateAssetDto dto, CancellationToken cancellationToken)
+    public async Task AddAsync(AssetCreateDto dto, CancellationToken cancellationToken)
     {
         var asset = dto.Adapt<Asset>();
         await _repository.AddAsync(asset, cancellationToken);
@@ -49,7 +49,7 @@ public class AssetService : IAssetService
             return Result.Fail("Asset is not found");
 
         asset.Name = dto.Name;
-        asset.Symbol = dto.Symbol;
+        asset.Ticker = dto.Ticker;
         asset.Balance = dto.Balance;
         asset.AverageBuyPrice = dto.AverageBuyPrice;
      
@@ -59,14 +59,14 @@ public class AssetService : IAssetService
         return Result.Success();
     }
     
-    public async Task<Result> UpdateBySymbolAsync(string symbol, AssetDto dto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateByTickerAsync(string ticker, AssetDto dto, CancellationToken cancellationToken)
     {
-        var asset = await _repository.GetBySymbolAsync(symbol, cancellationToken, true);
+        var asset = await _repository.GetByTickerAsync(ticker, cancellationToken, true);
         if (asset == null)
             return Result.Fail("Asset is not found");
 
         asset.Name = dto.Name;
-        asset.Symbol = dto.Symbol;
+        asset.Ticker = dto.Ticker;
         asset.Balance = dto.Balance;
         asset.AverageBuyPrice = dto.AverageBuyPrice;
         
@@ -76,9 +76,9 @@ public class AssetService : IAssetService
         return Result.Success();
     }
 
-    public async Task DeleteAsync(string symbol, CancellationToken cancellationToken)
+    public async Task DeleteAsync(string ticker, CancellationToken cancellationToken)
     {
-        await _repository.DeleteAsync(symbol, cancellationToken);
+        await _repository.DeleteAsync(ticker, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

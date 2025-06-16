@@ -29,11 +29,32 @@ public class ExchangeAccountService : IExchangeAccountService
         return account?.Adapt<ExchangeAccountDto>();
     }
 
-    public async Task AddAsync(ExchangeAccountDto dto, CancellationToken cancellationToken = default)
+    public async Task<ExchangeAccountDto> CreateExchangeAccountAsync(ExchangeAccountCreateDto dto, CancellationToken cancellationToken = default)
     {
-        var account = dto.Adapt<ExchangeAccount>();
-        await _repository.AddAsync(account, cancellationToken);
+        var entity = new ExchangeAccount
+        {
+            UserId = dto.UserId,
+            AccountName = dto.AccountName,
+            ExchangeName = dto.ExchangeName,
+            ApiKeyEncrypted = dto.ApiKey,
+            ApiSecretEncrypted = dto.ApiSecret,
+            ApiPassphrase = dto.ApiPassphrase,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        await _repository.AddAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new ExchangeAccountDto
+        {
+            Id = entity.Id,
+            UserId = entity.UserId,
+            AccountName = dto.AccountName,
+            ExchangeName = entity.ExchangeName,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt
+        };
     }
 
     public async Task<Result> UpdateAsync(Guid id, ExchangeAccountDto dto, CancellationToken cancellationToken = default)
@@ -42,7 +63,7 @@ public class ExchangeAccountService : IExchangeAccountService
         if (account == null)
             return Result.Fail("Exchange account not found");
 
-        account.Name = dto.Name;
+        account.ExchangeName = dto.ExchangeName;
         account.ApiKeyEncrypted = dto.ApiKeyEncrypted;
         account.ApiSecretEncrypted = dto.ApiSecretEncrypted;
         account.ApiPassphrase = dto.ApiPassphrase;
