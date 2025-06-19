@@ -18,7 +18,7 @@ public class ExchangeSyncService
 
     public async Task SyncBinanceAccountAsync(ExchangeAccount account, CancellationToken cancellationToken)
     {
-        var assets = await _binanceApiService.GetAccountBalancesAsync(
+        var assets = await _binanceApiService.GetAvailableAssetsAsync(
             account.ApiKeyEncrypted, account.ApiSecretEncrypted, cancellationToken);
 
         foreach (var binanceAsset in assets)
@@ -27,7 +27,7 @@ public class ExchangeSyncService
             var asset = new Asset
             {
                 Ticker = binanceAsset.Ticker,
-                Balance = binanceAsset.Free + binanceAsset.Locked,
+                Balance = binanceAsset.FreeBalance + binanceAsset.LockedBalance,
                 ExchangeAccountId = account.Id,
                 RetrievedAt = DateTime.UtcNow,
             };

@@ -4,5 +4,5 @@ namespace Crypfolio.Application.Interfaces;
 
 public interface IBinanceApiService
 {
-    Task<List<AssetBalanceDto>> GetAccountBalancesAsync(string apiKey, string secretKey, CancellationToken cancellationToken);
+    Task<List<AssetBalanceDto>> GetAvailableAssetsAsync(string apiKey, string secretKey, CancellationToken cancellationToken);
 }

@@ -2,11 +2,16 @@ using Crypfolio.Application.Services;
 using Crypfolio.Domain.Entities;
 using Crypfolio.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.IntegrationTests.Tests;
 
 public class ExchangeSyncServiceTests : IntegrationTestBase
 {
+    public ExchangeSyncServiceTests(ILogger<IntegrationTestBase> logger) : base(logger)
+    {
+    }
+
     [Fact]
     public async Task SyncBinanceAccountAsync_AddsOrUpdatesAssets()
     {

@@ -1,7 +1,6 @@
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Application.Services;
 using Crypfolio.Infrastructure.Persistence;
-using Crypfolio.IntegrationTests.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +16,6 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAssetRepository, AssetRepository>();
-        services.AddScoped<IBinanceApiService, MockBinanceApiService>(); // for mocking
 
         return services;
     }

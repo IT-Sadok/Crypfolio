@@ -58,7 +58,6 @@ public class AssetRepository : IAssetRepository
 
         if (existing is null)
         {
-            asset.Id = Guid.NewGuid();
             await _context.Assets.AddAsync(asset, cancellationToken);
         }
         else
@@ -76,7 +75,7 @@ public class AssetRepository : IAssetRepository
 
     public async Task DeleteAsync(string ticker, CancellationToken cancellationToken = default)
     {
-        var asset = await _context.Assets.FindAsync(new object[] { ticker }, cancellationToken);
+        var asset = await _context.Assets.FirstOrDefaultAsync(c => c.Ticker == ticker, cancellationToken: cancellationToken);
         if (asset != null)
         {
             _context.Assets.Remove(asset);

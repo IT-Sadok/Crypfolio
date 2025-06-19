@@ -9,10 +9,12 @@ namespace Crypfolio.Infrastructure.Persistence
     {
         public ApplicationDbContext CreateDbContext(string[] args)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
             // Build config manually (no dependency injection here)
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.Development.json") // or appsettings.Test.json
+                .AddJsonFile($"appsettings.{environment}.json") // or appsettings.Test.json
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();

@@ -5,6 +5,7 @@ using Crypfolio.Infrastructure.Persistence;
 using Crypfolio.Infrastructure.Extensions;
 using Crypfolio.Application.Extensions;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.IntegrationTests;
 
@@ -13,6 +14,12 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     protected IServiceScopeFactory ScopeFactory = default!;
     protected IServiceProvider ServiceProvider = default!;
     private IServiceScope _scope = default!;
+    private readonly ILogger<IntegrationTestBase> _logger;
+
+    protected IntegrationTestBase(ILogger<IntegrationTestBase> logger)
+    {
+        _logger = logger;
+    }
 
     protected ApplicationDbContext DbContext => GetService<ApplicationDbContext>();
     protected T GetService<T>() => _scope.ServiceProvider.GetRequiredService<T>();
@@ -27,8 +34,8 @@ public abstract class IntegrationTestBase : IAsyncLifetime
             .Build();
         
         var connStr = testConfig.GetConnectionString("DefaultConnection");
-        Console.WriteLine("🔌 Using test DB connection string: " + connStr);
-
+        _logger.LogInformation("🔌 Using test DB connection string: " + connStr);
+        
         services.AddInfrastructure(testConfig);
         services.AddApplication();
 
