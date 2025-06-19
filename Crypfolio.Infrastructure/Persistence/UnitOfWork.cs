@@ -20,6 +20,7 @@ public class UnitOfWork : IUnitOfWork
     public IWalletRepository Wallets { get; }
     public IAssetRepository Assets { get; }
     public IUserDataRepository UserData { get; }
+    
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

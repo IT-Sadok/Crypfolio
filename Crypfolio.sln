@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypfolio.Domain", "Crypfol
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypfolio.Infrastructure", "Crypfolio.Infrastructure\Crypfolio.Infrastructure.csproj", "{AB624ED7-5109-4CC5-9B29-069EF48EB2B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypfolio.IntegrationTests", "Crypfolio.IntegrationTests\Crypfolio.IntegrationTests.csproj", "{6C4CD36E-9698-4523-A70E-CCA578347B3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{AB624ED7-5109-4CC5-9B29-069EF48EB2B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB624ED7-5109-4CC5-9B29-069EF48EB2B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB624ED7-5109-4CC5-9B29-069EF48EB2B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C4CD36E-9698-4523-A70E-CCA578347B3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4CD36E-9698-4523-A70E-CCA578347B3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4CD36E-9698-4523-A70E-CCA578347B3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4CD36E-9698-4523-A70E-CCA578347B3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,6 @@
 namespace Crypfolio.Application.DTOs;
 
-public class CreateWalletRequestDto
+public class WalletCreateDto
 {
     public string Name { get; set; }
     public string Blockchain { get; set; }

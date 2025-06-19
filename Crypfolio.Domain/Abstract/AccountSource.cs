@@ -7,7 +7,7 @@ public abstract class AccountSource
     public Guid Id { get; set; }
     public string UserId { get; set; }
     public ApplicationUser User { get; set; } = new();
-    public string Name { get; set; } = string.Empty;
+    public string AccountName { get; set; } = string.Empty;
 
     public ICollection<Asset> Assets { get; set; } = new List<Asset>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();

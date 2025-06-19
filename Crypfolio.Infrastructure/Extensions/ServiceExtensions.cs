@@ -75,7 +75,7 @@ public static class ServiceExtensions
         services.AddScoped<IWalletRepository, WalletRepository>();
         services.AddScoped<IExchangeAccountService, ExchangeAccountService>();
         services.AddScoped<IExchangeAccountRepository, ExchangeAccountRepository>();
-        
+
         return services;
     }
 }

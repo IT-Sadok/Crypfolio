@@ -5,7 +5,7 @@ namespace Crypfolio.Domain.Entities;
 public class Asset
 {
     public Guid Id { get; set; }
-    public string Symbol { get; set; } = string.Empty; 
+    public string Ticker { get; set; } = string.Empty; 
     public string Name { get; set; } = string.Empty;
     public decimal Balance { get; set; }
     public decimal UsdValue { get; set; }

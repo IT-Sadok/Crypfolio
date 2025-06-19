@@ -21,10 +21,10 @@ public static class ExchangeAccountEndpoints
             return account is null ? null : Results.Ok(account);
         });
 
-        endpoints.MapPost(Routes.ExchangeAccounts, async (ExchangeAccountDto dto, [FromServices] IExchangeAccountService service, CancellationToken ct) =>
+        endpoints.MapPost(Routes.ExchangeAccounts, async (ExchangeAccountCreateDto dto, [FromServices] IExchangeAccountService service, CancellationToken ct) =>
         {
-            await service.AddAsync(dto, ct);
-            return Results.Created($"{Routes.ExchangeAccounts}/{dto.Id}", dto);
+            var result = await service.CreateExchangeAccountAsync(dto, ct);
+            return Results.Created($"{Routes.ExchangeAccounts}/{result.Id}", dto);
         });
 
         endpoints.MapPut(Routes.ExchangeAccountsById, async (Guid id, ExchangeAccountDto dto, [FromServices] IExchangeAccountService service, CancellationToken ct) =>
