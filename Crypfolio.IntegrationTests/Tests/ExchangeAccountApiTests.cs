@@ -24,15 +24,13 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task CreateExchangeAccount_ReturnsSuccessAndPersists()
     {
         // Arrange
-        var factory = new CustomWebApplicationFactory();
-        var client = factory.CreateClient();
-
         var expectedAssets = new List<AssetBalanceDto> 
         { 
             new() { Ticker = "BTC", FreeBalance = 0.5m}, 
             new() { Ticker = "ETH", FreeBalance = 1.2m }
         };
-        factory.BinanceApiMock
+        
+        _factory.BinanceApiMock
             .GetAvailableAssetsAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(expectedAssets);
         
@@ -44,14 +42,14 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
             ApiKey = "test-api-key",
             ApiSecret = "test-api-secret"
         };
-
         
         // Act
-        var response = await client.PostAsJsonAsync(Routes.ExchangeAccounts, dto);
-        response.EnsureSuccessStatusCode();
+        var response = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, dto);
 
         // Assert
-        await factory.BinanceApiMock
+        response.EnsureSuccessStatusCode();
+
+        await _factory.BinanceApiMock
             .Received(1)
             .GetAvailableAssetsAsync(dto.ApiKey, dto.ApiSecret, Arg.Any<CancellationToken>());
         

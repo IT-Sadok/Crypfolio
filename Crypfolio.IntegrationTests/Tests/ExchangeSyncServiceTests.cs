@@ -6,18 +6,23 @@ using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.IntegrationTests.Tests;
 
-public class ExchangeSyncServiceTests : IntegrationTestBase
+public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactory>
 {
-    public ExchangeSyncServiceTests(ILogger<IntegrationTestBase> logger) : base(logger)
+    private readonly IServiceScopeFactory _scopeFactory;
+
+    public ExchangeSyncServiceTests(CustomWebApplicationFactory factory)
     {
+        // Obtain the IServiceScopeFactory from the factory's service provider
+        _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
     }
 
     [Fact]
     public async Task SyncBinanceAccountAsync_AddsOrUpdatesAssets()
     {
-        using var scope = ScopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<ExchangeSyncService>();
+        // Arrange: create a scope to access DbContext and services
+        await using var scope = _scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var service = scope.ServiceProvider.GetRequiredService<ExchangeSyncService>();
 
         var account = new ExchangeAccount
         {
@@ -30,12 +35,14 @@ public class ExchangeSyncServiceTests : IntegrationTestBase
         db.ExchangeAccounts.Add(account);
         await db.SaveChangesAsync();
 
+        // Act
         await service.SyncBinanceAccountAsync(account, CancellationToken.None);
 
+        // Assert: two assets were upserted
         var assets = db.Assets.Where(a => a.ExchangeAccountId == account.Id).ToList();
-
         Assert.Equal(2, assets.Count);
         Assert.Contains(assets, a => a.Name == "BTC" && a.Balance == 0.30m);
         Assert.Contains(assets, a => a.Name == "ETH" && a.Balance == 2.0m);
     }
 }
+
