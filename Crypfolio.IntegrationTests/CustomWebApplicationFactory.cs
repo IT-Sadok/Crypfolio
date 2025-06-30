@@ -1,4 +1,5 @@
 using Crypfolio.Application.Interfaces;
+using Crypfolio.Domain.Enums;
 using Crypfolio.Infrastructure.Persistence;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
@@ -16,17 +17,18 @@ namespace Crypfolio.IntegrationTests;
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly MsSqlContainer _dbContainer;
-    public IBinanceApiService BinanceApiMock { get; private set; } = default!;
+    public IExchangeApiService BinanceApiMock { get; private set; } = default!;
    
     public CustomWebApplicationFactory()
     {
         _dbContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            //.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            .WithImage("mcr.microsoft.com/azure-sql-edge")
             //.WithName("crypfolio-test-db")
             .WithPassword("yourStrong(!)Password")
-            .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilPortIsAvailable(1433)
-                .UntilMessageIsLogged("Recovery is complete."))
+            // .WithWaitStrategy(Wait.ForUnixContainer()
+            //     .UntilPortIsAvailable(1433)
+            //     .UntilMessageIsLogged("Recovery is complete."))
             //.WithCreateParameterModifier(cmd => cmd.Cmd("linux/amd64"))
             //.WithPlatform("linux/amd64") // - to fix the issue with Mac chip
             .WithCleanUp(true)
@@ -47,9 +49,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 options.UseSqlServer(_dbContainer.GetConnectionString()));
 
             // Mocks external services
-            BinanceApiMock = Substitute.For<IBinanceApiService>();
-            services.RemoveAll<IBinanceApiService>();
-            services.AddSingleton(BinanceApiMock);
+            BinanceApiMock = Substitute.For<IExchangeApiService>();
+            BinanceApiMock.ExchangeName.Returns(ExchangeName.Binance);
+            services.AddSingleton<IExchangeApiService>(BinanceApiMock);
         });
     }
     

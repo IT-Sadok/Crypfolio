@@ -1,37 +1,50 @@
+using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Domain.Entities;
+using Crypfolio.Domain.Enums;
+using Crypfolio.Infrastructure.Services;
 
 namespace Crypfolio.Application.Services;
 
-public class ExchangeSyncService
+public class ExchangeSyncService : IExchangeSyncService
 {
-    private readonly IBinanceApiService _binanceApiService;
-    private readonly IAssetRepository _assetRepository;
+    private readonly Dictionary<ExchangeName, IExchangeApiService> _apiServices;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ExchangeSyncService(IBinanceApiService binanceApiService, IUnitOfWork unitOfWork)
+    public ExchangeSyncService(IEnumerable<IExchangeApiService> services, IUnitOfWork unitOfWork)
     {
-        _binanceApiService = binanceApiService;
         _unitOfWork = unitOfWork;
-        _assetRepository = unitOfWork.Assets;
+
+        _apiServices = services.ToDictionary(
+            s => s switch
+            {
+                BinanceApiService => ExchangeName.Binance,
+                // Add others as needed
+                _ => throw new NotSupportedException($"Unknown service type: {s.GetType().Name}")
+            });
     }
 
-    public async Task SyncBinanceAccountAsync(ExchangeAccount account, CancellationToken cancellationToken)
+    public async Task SyncAccountAsync(ExchangeAccount account, CancellationToken cancellationToken)
     {
-        var assets = await _binanceApiService.GetAvailableAssetsAsync(
-            account.ApiKeyEncrypted, account.ApiSecretEncrypted, cancellationToken);
+        if (!_apiServices.TryGetValue(account.ExchangeName, out var service))
+            throw new NotSupportedException($"Exchange '{account.ExchangeName}' is not supported.");
 
-        foreach (var binanceAsset in assets)
+        var assets = await service.GetAvailableAssetsAsync(
+            account.ApiKeyEncrypted!, account.ApiSecretEncrypted!, cancellationToken);
+
+        foreach (var asset in assets)
         {
-            // Update assets in DB
-            var asset = new Asset
+            var entity = new Asset
             {
-                Ticker = binanceAsset.Ticker,
-                Balance = binanceAsset.FreeBalance + binanceAsset.LockedBalance,
+                Ticker = asset.Ticker,
+                Balance = asset.FreeBalance + asset.LockedBalance,
                 ExchangeAccountId = account.Id,
                 RetrievedAt = DateTime.UtcNow,
             };
-            await _assetRepository.UpsertAssetAsync(asset, cancellationToken);
+
+            await _unitOfWork.Assets.UpsertAssetAsync(entity, cancellationToken);
         }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -24,7 +24,7 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task CreateExchangeAccount_ReturnsSuccessAndPersists()
     {
         // Arrange
-        var expectedAssets = new List<AssetBalanceDto> 
+        var expectedAssets = new List<AssetDto> 
         { 
             new() { Ticker = "BTC", FreeBalance = 0.5m}, 
             new() { Ticker = "ETH", FreeBalance = 1.2m }

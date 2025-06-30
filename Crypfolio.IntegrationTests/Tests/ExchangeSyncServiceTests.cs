@@ -1,6 +1,9 @@
+using Crypfolio.Application.Interfaces;
 using Crypfolio.Application.Services;
 using Crypfolio.Domain.Entities;
+using Crypfolio.Domain.Enums;
 using Crypfolio.Infrastructure.Persistence;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,30 +20,32 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task SyncBinanceAccountAsync_AddsOrUpdatesAssets()
+    public async Task SyncAccountAsync_AddsOrUpdatesAssets()
     {
         // Arrange: create a scope to access DbContext and services
         await using var scope = _scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var service = scope.ServiceProvider.GetRequiredService<ExchangeSyncService>();
+        var syncService = scope.ServiceProvider.GetRequiredService<IExchangeSyncService>();
 
         var account = new ExchangeAccount
         {
             AccountName = "Test Binance Account",
             UserId = "test-user-id",
-            ApiKeyEncrypted = "dummy",
-            ApiSecretEncrypted = "dummy"
+            ApiKeyEncrypted = "dummy-key",
+            ApiSecretEncrypted = "dummy-secret",
+            ExchangeName = ExchangeName.Binance
         };
 
         db.ExchangeAccounts.Add(account);
         await db.SaveChangesAsync();
 
         // Act
-        await service.SyncBinanceAccountAsync(account, CancellationToken.None);
+        await syncService.SyncAccountAsync(account, CancellationToken.None);
 
         // Assert: two assets were upserted
         var assets = db.Assets.Where(a => a.ExchangeAccountId == account.Id).ToList();
         Assert.Equal(2, assets.Count);
+        assets.Should().HaveCount(2);
         Assert.Contains(assets, a => a.Name == "BTC" && a.Balance == 0.30m);
         Assert.Contains(assets, a => a.Name == "ETH" && a.Balance == 2.0m);
     }

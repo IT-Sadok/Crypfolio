@@ -13,6 +13,11 @@ public class ExchangeAccountRepository : IExchangeAccountRepository
         _context = context;
     }
 
+    public async Task<IEnumerable<ExchangeAccount>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.ExchangeAccounts.ToListAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<ExchangeAccount>> GetAllAsync(string userId, CancellationToken cancellationToken = default, bool isTracking = false)
     {
         var query = _context.ExchangeAccounts.Where(a => a.UserId == userId);

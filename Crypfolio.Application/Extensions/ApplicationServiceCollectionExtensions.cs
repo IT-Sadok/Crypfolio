@@ -13,6 +13,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IWalletService, WalletService>();
         services.AddScoped<IExchangeAccountService, ExchangeAccountService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ExchangeSyncService>();
 
         return services;
     }

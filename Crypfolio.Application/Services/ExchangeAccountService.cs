@@ -6,6 +6,7 @@ using Mapster;
 
 namespace Crypfolio.Application.Services;
 
+// CRUD, validation, dto transformation
 public class ExchangeAccountService : IExchangeAccountService
 {
     private readonly IExchangeAccountRepository _repository;
@@ -17,6 +18,12 @@ public class ExchangeAccountService : IExchangeAccountService
         _unitOfWork = unitOfWork;
     }
 
+    public async Task<IEnumerable<ExchangeAccountDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var accounts = await _repository.GetAllAsync(cancellationToken);
+        return accounts.Adapt<IEnumerable<ExchangeAccountDto>>();
+    }
+    
     public async Task<IEnumerable<ExchangeAccountDto>?> GetAllAsync(string userId, CancellationToken cancellationToken = default)
     {
         var accounts = await _repository.GetAllAsync(userId, cancellationToken);

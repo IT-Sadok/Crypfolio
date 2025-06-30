@@ -34,3 +34,5 @@ app.MapWalletEndpoints();
 app.MapExchangeAccountEndpoints();
 
 app.Run();
+
+public partial class Program { }

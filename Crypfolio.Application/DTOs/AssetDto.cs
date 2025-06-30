@@ -8,9 +8,10 @@ public class AssetDto
     public Guid Id { get; set; }
     public string Ticker { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public decimal Balance { get; set; }
+    public decimal FreeBalance { get; set; }
+    public decimal LockedBalance { get; set; }
     public decimal AverageBuyPrice { get; set; }
-    public decimal TotalCost => Balance * AverageBuyPrice;
+    public decimal TotalCost => (FreeBalance + LockedBalance) * AverageBuyPrice;
     public decimal UsdValue { get; set; }
     
     public Guid? WalletId { get; set; }

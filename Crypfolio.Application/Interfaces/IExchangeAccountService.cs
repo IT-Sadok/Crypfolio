@@ -5,6 +5,7 @@ namespace Crypfolio.Application.Interfaces;
 
 public interface IExchangeAccountService
 {
+    Task<IEnumerable<ExchangeAccountDto>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<ExchangeAccountDto>?> GetAllAsync(string userId, CancellationToken cancellationToken = default);
     Task<ExchangeAccountDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ExchangeAccountDto>  CreateExchangeAccountAsync(ExchangeAccountCreateDto dto, CancellationToken cancellationToken = default);

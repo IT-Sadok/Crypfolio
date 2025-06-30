@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Crypfolio.Infrastructure.Persistence;
+using Crypfolio.Infrastructure.Services;
 
 namespace Crypfolio.Infrastructure.Extensions;
 
@@ -75,7 +76,12 @@ public static class ServiceExtensions
         services.AddScoped<IWalletRepository, WalletRepository>();
         services.AddScoped<IExchangeAccountService, ExchangeAccountService>();
         services.AddScoped<IExchangeAccountRepository, ExchangeAccountRepository>();
+        services.AddScoped<IExchangeSyncService, ExchangeSyncService>();
+        services.AddHttpClient<BinanceApiService>();
+        //services.AddScoped<IExchangeApiService, BinanceApiService>(); // This one is fine if Binance is the only one
+        //services.AddScoped<IExchangeApiService, KrakenApiService>();  // But this will overwrite the previous line
 
+        
         return services;
     }
 }
