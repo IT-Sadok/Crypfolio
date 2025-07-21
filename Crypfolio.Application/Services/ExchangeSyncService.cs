@@ -15,13 +15,15 @@ public class ExchangeSyncService : IExchangeSyncService
     {
         _unitOfWork = unitOfWork;
 
-        _apiServices = services.ToDictionary(
-            s => s switch
-            {
-                BinanceApiService => ExchangeName.Binance,
-                // Add others as needed
-                _ => throw new NotSupportedException($"Unknown service type: {s.GetType().Name}")
-            });
+        // _apiServices = services.ToDictionary(
+        //     s => s switch
+        //     {
+        //         BinanceApiService => ExchangeName.Binance,
+        //         // Add others as needed
+        //         _ => throw new NotSupportedException($"Unknown service type: {s.GetType().Name}")
+        //     });
+        
+        _apiServices = services.ToDictionary(s => s.ExchangeName);
     }
 
     public async Task SyncAccountAsync(ExchangeAccount account, CancellationToken cancellationToken)

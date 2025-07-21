@@ -18,7 +18,8 @@ public class BinanceApiService : IExchangeApiService
 
     public async Task<List<AssetDto>> GetAvailableAssetsAsync(string apiKey, string secretKey, CancellationToken ct)
     {
-        var result = await _httpClient.GetFromJsonAsync<BinanceAccountInfoDto>("api/v3/account", ct);
+        //var result = await _httpClient.GetFromJsonAsync<BinanceAccountInfoDto>("api/v3/account", ct);
+        var result = await _httpClient.GetFromJsonAsync<BinanceAccountInfoDto>("api/v1/fake-balances", ct);
 
         return result?.Balances
             .Where(b => decimal.Parse(b.Free) > 0 || decimal.Parse(b.Locked) > 0)

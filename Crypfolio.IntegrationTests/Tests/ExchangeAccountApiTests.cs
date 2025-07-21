@@ -30,10 +30,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
             new() { Ticker = "ETH", FreeBalance = 1.2m }
         };
         
-        _factory.BinanceApiMock
-            .GetAvailableAssetsAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(expectedAssets);
-        
         var dto = new ExchangeAccountCreateDto
         {
             UserId = Guid.NewGuid().ToString(),
@@ -49,10 +45,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         // Assert
         response.EnsureSuccessStatusCode();
 
-        await _factory.BinanceApiMock
-            .Received(1)
-            .GetAvailableAssetsAsync(dto.ApiKey, dto.ApiSecret, Arg.Any<CancellationToken>());
-        
         // Assert
         var result = await response.Content.ReadFromJsonAsync<ExchangeAccountDto>();
 
@@ -77,9 +69,14 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         await _client.PostAsJsonAsync(Routes.ExchangeAccounts, dto);
 
         // Act
-        var response = await _client.GetAsync(Routes.ExchangeAccounts);
+        var response = await _client.GetAsync(Routes.ExchangeAccountsByUserId + $"?userId={dto.UserId}");
 
         // Assert
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Response failed: " + error);
+        }
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<List<ExchangeAccountDto>>();
 
@@ -101,6 +98,11 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         };
 
         var createResponse = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, dto);
+        if (!createResponse.IsSuccessStatusCode)
+        {
+            var error = await createResponse.Content.ReadAsStringAsync();
+            Console.WriteLine("Response failed: " + error);
+        }
         createResponse.EnsureSuccessStatusCode();
         var created = await createResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
 
@@ -108,6 +110,11 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         var getResponse = await _client.GetAsync($"{Routes.ExchangeAccounts}/{created!.Id}");
 
         // Assert
+        if (!getResponse.IsSuccessStatusCode)
+        {
+            var error = await getResponse.Content.ReadAsStringAsync();
+            Console.WriteLine("Response failed: " + error);
+        }
         getResponse.EnsureSuccessStatusCode();
         var result = await getResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
 
@@ -137,6 +144,11 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         var deleteResponse = await _client.DeleteAsync($"{Routes.ExchangeAccounts}/{created!.Id}");
 
         // Assert
+        if (!deleteResponse.IsSuccessStatusCode)
+        {
+            var error = await deleteResponse.Content.ReadAsStringAsync();
+            Console.WriteLine("Response failed: " + error);
+        }
         deleteResponse.EnsureSuccessStatusCode();
 
         var getResponse = await _client.GetAsync($"{Routes.ExchangeAccounts}/{created.Id}");

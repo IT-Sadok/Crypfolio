@@ -1,14 +1,11 @@
+using System.Net;
+using System.Net.Http.Json;
 using Crypfolio.Application.Interfaces;
-using Crypfolio.Domain.Enums;
 using Crypfolio.Infrastructure.Persistence;
-using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Configurations;
+using Crypfolio.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using NSubstitute;
 using Microsoft.AspNetCore.Hosting;
 using Testcontainers.MsSql;
 
@@ -17,7 +14,6 @@ namespace Crypfolio.IntegrationTests;
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly MsSqlContainer _dbContainer;
-    public IExchangeApiService BinanceApiMock { get; private set; } = default!;
    
     public CustomWebApplicationFactory()
     {
@@ -26,11 +22,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             .WithImage("mcr.microsoft.com/azure-sql-edge")
             //.WithName("crypfolio-test-db")
             .WithPassword("yourStrong(!)Password")
-            // .WithWaitStrategy(Wait.ForUnixContainer()
-            //     .UntilPortIsAvailable(1433)
-            //     .UntilMessageIsLogged("Recovery is complete."))
-            //.WithCreateParameterModifier(cmd => cmd.Cmd("linux/amd64"))
-            //.WithPlatform("linux/amd64") // - to fix the issue with Mac chip
             .WithCleanUp(true)
             .Build();
     }
@@ -47,11 +38,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(_dbContainer.GetConnectionString()));
+            
+            // Register HttpClient with mocked handler for BinanceApiService
+            services.AddHttpClient<BinanceApiService>()
+                .ConfigurePrimaryHttpMessageHandler(() => CreateMockBinanceHttpHandler());
 
-            // Mocks external services
-            BinanceApiMock = Substitute.For<IExchangeApiService>();
-            BinanceApiMock.ExchangeName.Returns(ExchangeName.Binance);
-            services.AddSingleton<IExchangeApiService>(BinanceApiMock);
+            // Register IExchangeApiService for DI resolution
+            services.AddSingleton<IExchangeApiService>(provider =>
+                provider.GetRequiredService<BinanceApiService>());
         });
     }
     
@@ -62,6 +56,26 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
+    }
+    
+    // Mock HTTP response that BinanceApiService would receive
+    private static HttpMessageHandler CreateMockBinanceHttpHandler()
+    {
+        var fakeResponse = new BinanceAccountInfoDto
+        {
+            Balances = new List<BinanceBalanceDto>
+            {
+                new() { Asset = "BTC", Free = "0.10", Locked = "0.20" },
+                new() { Asset = "ETH", Free = "1.00", Locked = "1.00" }
+            }
+        };
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = JsonContent.Create(fakeResponse)
+        };
+
+        return new MockHttpMessageHandler(mockResponse);
     }
 
     public async Task DisposeAsync() => await _dbContainer.StopAsync();

@@ -57,7 +57,7 @@ public class ExchangeAccountService : IExchangeAccountService
         {
             Id = entity.Id,
             UserId = entity.UserId,
-            AccountName = dto.AccountName,
+            AccountName = entity.AccountName,
             ExchangeName = entity.ExchangeName,
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt

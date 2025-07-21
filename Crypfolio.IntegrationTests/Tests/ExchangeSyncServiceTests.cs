@@ -40,14 +40,14 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         await db.SaveChangesAsync();
 
         // Act
-        await syncService.SyncAccountAsync(account, CancellationToken.None);
+        await syncService.SyncAccountAsync(account, CancellationToken.None); // uses real BinanceApiService with mocked HttpClient
 
         // Assert: two assets were upserted
         var assets = db.Assets.Where(a => a.ExchangeAccountId == account.Id).ToList();
         Assert.Equal(2, assets.Count);
         assets.Should().HaveCount(2);
-        Assert.Contains(assets, a => a.Name == "BTC" && a.Balance == 0.30m);
-        Assert.Contains(assets, a => a.Name == "ETH" && a.Balance == 2.0m);
+        Assert.Contains(assets, a => a.Ticker == "BTC" && a.Balance == 0.30m);
+        Assert.Contains(assets, a => a.Ticker == "ETH" && a.Balance == 2.0m);
     }
 }
 

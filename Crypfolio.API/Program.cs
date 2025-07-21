@@ -15,6 +15,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddServices();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.WebHost.ConfigureLogging(logging =>
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
+    })
+    .UseSetting(WebHostDefaults.DetailedErrorsKey, "true")
+    .CaptureStartupErrors(true);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
