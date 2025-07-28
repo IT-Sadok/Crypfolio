@@ -5,6 +5,7 @@ public class Routes
     public const string Assets = "/api/assets";
     public const string AssetsByTicker = "/api/assets/{symbol}";
     public const string AssetsById = "/api/assets/{id}";
+    public const string AssetsByAccountSourceId = "/api/assets/sync/{id}";
     
     public const string Login = "/api/auth/login";
     public const string Register = "/api/auth/register";

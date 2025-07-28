@@ -10,7 +10,7 @@ public class Transaction
 
     // This replaces both WalletId and ExchangeAccountId
     public Guid AccountSourceId { get; set; }  // required FK
-    public AccountSource AccountSource { get; set; } = null!;
+    public AccountSource? AccountSource { get; set; } = null!;
     
     public decimal Amount { get; set; }
 

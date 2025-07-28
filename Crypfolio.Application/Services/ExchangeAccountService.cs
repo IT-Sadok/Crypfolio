@@ -41,6 +41,7 @@ public class ExchangeAccountService : IExchangeAccountService
         var entity = new ExchangeAccount
         {
             UserId = dto.UserId,
+            //User = new() { Id = dto.UserId },
             AccountName = dto.AccountName,
             ExchangeName = dto.ExchangeName,
             ApiKeyEncrypted = dto.ApiKey,

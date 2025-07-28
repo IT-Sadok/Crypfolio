@@ -6,7 +6,7 @@ public abstract class AccountSource
 {
     public Guid Id { get; set; }
     public string UserId { get; set; }
-    public ApplicationUser User { get; set; } = new();
+    public ApplicationUser User { get; set; } 
     public string AccountName { get; set; } = string.Empty;
 
     public ICollection<Asset> Assets { get; set; } = new List<Asset>();
@@ -14,4 +14,5 @@ public abstract class AccountSource
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? DeletedAt { get; set; }
 }

@@ -29,6 +29,12 @@ public class AssetService : IAssetService
         return asset?.Adapt<AssetDto>();
     }
     
+    public async Task<List<AssetDto>?> GetByAccountSourceIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var assets = await _repository.GetByAccountSourceIdAsync(id, cancellationToken);
+        return assets?.Adapt<List<AssetDto>>();
+    }
+    
     public async Task<AssetDto?> GetByTickerAsync(string ticker, CancellationToken cancellationToken)
     {
         var asset = await _repository.GetByTickerAsync(ticker, cancellationToken);

@@ -30,6 +30,16 @@ public class AssetRepository : IAssetRepository
 
         return await query.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
+    
+    public async Task<List<Asset>> GetByAccountSourceIdAsync(Guid id, CancellationToken cancellationToken,
+        bool isTracking = false)
+    {
+        var query = _context.Assets.AsQueryable();
+        if (!isTracking)
+            query = query.AsNoTracking();
+
+        return await query.Where(a => a.ExchangeAccountId == id || a.WalletId == id).ToListAsync();
+    }
 
     public async Task<Asset?> GetByTickerAsync(string ticker, CancellationToken cancellationToken = default, bool isTracking = false)
     {

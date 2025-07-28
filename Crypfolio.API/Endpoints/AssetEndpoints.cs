@@ -26,6 +26,12 @@ public static class AssetEndpoints
             var asset = await service.GetByTickerAsync(ticker, ct);
             return asset is null ? null : Results.Ok(asset);
         });
+        
+        app.MapGet(Routes.AssetsByAccountSourceId, async (Guid id, [FromServices] IAssetService service, CancellationToken ct) =>
+        {
+            var asset = await service.GetByAccountSourceIdAsync(id, ct);
+            return asset is null ? null : Results.Ok(asset);
+        });
 
         app.MapPost(Routes.Assets, async (AssetCreateDto dto, [FromServices] IAssetService service, CancellationToken ct) =>
         {

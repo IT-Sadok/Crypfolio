@@ -21,11 +21,11 @@ public class AccountSourceConfiguration : IEntityTypeConfiguration<AccountSource
 
         builder.HasMany(a => a.Transactions)
                 .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(a => a.User)
                 .WithMany()
                 .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
     }
 }

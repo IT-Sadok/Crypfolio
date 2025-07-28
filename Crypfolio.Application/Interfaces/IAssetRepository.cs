@@ -6,6 +6,7 @@ public interface IAssetRepository
 {
     Task<IEnumerable<Asset>> GetAllAsync(CancellationToken cancellationToken, bool isTracking = false);
     Task<Asset?> GetByIdAsync(Guid id, CancellationToken cancellationToken, bool isTracking = false);
+    Task<List<Asset>> GetByAccountSourceIdAsync(Guid id, CancellationToken cancellationToken, bool isTracking = false);
     Task<Asset?> GetByTickerAsync(string ticker, CancellationToken cancellationToken, bool isTracking = false);
     Task<Asset?> GetByNameAndAccountSourceIdAsync(string name, Guid? accountSourceId, CancellationToken cancellationToken);
     Task AddAsync(Asset asset, CancellationToken cancellationToken);
