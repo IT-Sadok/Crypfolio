@@ -13,19 +13,30 @@ public class AccountSourceConfiguration : IEntityTypeConfiguration<AccountSource
         builder.HasDiscriminator<string>("AccountType")
                 .HasValue<Wallet>("Wallet")
                 .HasValue<ExchangeAccount>("Exchange");
-        
-        // Relationships
-        builder.HasMany(a => a.Assets)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(a => a.Transactions)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(a => a.User)
                 .WithMany()
                 .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany<Asset>()
+                .WithOne(a => a.Wallet)
+                .HasForeignKey(a => a.WalletId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany<Asset>()
+                .WithOne(a => a.ExchangeAccount)
+                .HasForeignKey(a => a.ExchangeAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany<Transaction>()
+                .WithOne(t => t.Wallet)
+                .HasForeignKey(t => t.WalletId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany<Transaction>()
+                .WithOne(t => t.ExchangeAccount)
+                .HasForeignKey(t => t.ExchangeAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -81,7 +81,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         await syncService.SyncAccountAsync(account, CancellationToken.None);
 
         var getAssetsResponse =
-            await _client.GetAsync(Routes.AssetsByAccountSourceId + $"?accountId={createdAccount.Id}");
+            await _client.GetAsync(Routes.AssetsByAccountSourceId + $"?id={createdAccount.Id}");
         getAssetsResponse.EnsureSuccessStatusCode();
         var syncedAssets = await getAssetsResponse.Content.ReadFromJsonAsync<List<AssetDto>>();
 
@@ -109,40 +109,59 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
             ApiSecret = "secret"
         };
 
-        var createResponse = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, createDto);
+        var createAccResponse = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, createDto);
         // Debug
-        if (!createResponse.IsSuccessStatusCode)
+        if (!createAccResponse.IsSuccessStatusCode)
         {
-            var error = await createResponse.Content.ReadAsStringAsync();
+            var error = await createAccResponse.Content.ReadAsStringAsync();
             Console.WriteLine("Response failed: " + error);
         }
-        createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
-        created.Should().NotBeNull();
-        var exchangeAccountId = created!.Id;
+        createAccResponse.EnsureSuccessStatusCode();
+
+        var createdAcc = await createAccResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
+        createdAcc.Should().NotBeNull();
+        var exchangeAccountId = createdAcc!.Id;
 
         // Add fake assets
-        var newAssets = new List<Asset>
+        var newAssets = new List<AssetCreateDto>
         {
-            new Asset { Ticker = "BTC", Balance = 1.0m, ExchangeAccountId = exchangeAccountId },
-            new Asset { Ticker = "ETH", Balance = 2.5m, ExchangeAccountId = exchangeAccountId }
+            new AssetCreateDto { Ticker = "BTC", Balance = 1.0m, ExchangeAccountId = exchangeAccountId },
+            new AssetCreateDto { Ticker = "ETH", Balance = 2.5m, ExchangeAccountId = exchangeAccountId }
         };
-        db.Assets.AddRange(newAssets);
-        
+        foreach (var asset in newAssets)
+        {
+            var addAssetsResponse = await _client.PostAsJsonAsync(Routes.Assets, asset);
+            addAssetsResponse.EnsureSuccessStatusCode();
+        }
+
+        var getAssetsResponse =
+            await _client.GetAsync(Routes.AssetsByAccountSourceId + $"?id={exchangeAccountId}");
+        // Debug
+        if (!getAssetsResponse.IsSuccessStatusCode)
+        {
+            var error = await getAssetsResponse.Content.ReadAsStringAsync();
+            Console.WriteLine("Response failed: " + error);
+        }
+
+        getAssetsResponse.EnsureSuccessStatusCode();
+        var addedAssets = await getAssetsResponse.Content.ReadFromJsonAsync<List<AssetDto>>();
+
         var transaction = new Transaction
         {
             Id = Guid.NewGuid(),
-            AccountSourceId = exchangeAccountId,
-            AssetId = newAssets.First().Id, 
-            Amount = 100,
+            ExchangeAccountId = exchangeAccountId,
+            FromAssetId = addedAssets.First().Id,
+            ToAssetId = addedAssets.Last().Id,
+            FromAmount = 100,
+            ToAmount = 150,
             Type = TransactionType.Deposit,
             Timestamp = DateTime.UtcNow,
         };
+
         await db.Transactions.AddAsync(transaction);
-        
         await db.SaveChangesAsync();
-        
+
         // Act: Delete exchange account
         var deleteResponse = await _client.DeleteAsync($"{Routes.ExchangeAccounts}/{exchangeAccountId}");
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -160,7 +179,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert: Transactions should still exist
         var transactions = await db.Transactions
-            .Where(t => t.AccountSourceId == exchangeAccountId)
+            .Where(t => t.ExchangeAccountId == exchangeAccountId)
             .ToListAsync();
         transactions.Should().NotBeEmpty(); // Assuming you seeded or added one
     }
