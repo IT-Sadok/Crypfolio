@@ -56,7 +56,8 @@ public class AssetService : IAssetService
 
         asset.Name = dto.Name;
         asset.Ticker = dto.Ticker;
-        asset.Balance = dto.FreeBalance;
+        asset.FreeBalance = dto.FreeBalance;
+        asset.LockedBalance = dto.LockedBalance;
         asset.AverageBuyPrice = dto.AverageBuyPrice;
      
         //await _repository.UpdateAsync(asset, cancellationToken);
@@ -73,7 +74,8 @@ public class AssetService : IAssetService
 
         asset.Name = dto.Name;
         asset.Ticker = dto.Ticker;
-        asset.Balance = dto.FreeBalance;
+        asset.FreeBalance = dto.FreeBalance;
+        asset.LockedBalance = dto.LockedBalance;
         asset.AverageBuyPrice = dto.AverageBuyPrice;
         
         //await _repository.UpdateAsync(asset, cancellationToken);

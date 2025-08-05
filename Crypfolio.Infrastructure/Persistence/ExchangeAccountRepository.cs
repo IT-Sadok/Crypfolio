@@ -44,7 +44,15 @@ public class ExchangeAccountRepository : IExchangeAccountRepository
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var account = await _context.ExchangeAccounts.FindAsync(new object[] { id }, cancellationToken);
-        if (account is not null)
-            _context.ExchangeAccounts.Remove(account);
+        try
+        {
+            if (account is not null)
+                _context.ExchangeAccounts.Remove(account);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

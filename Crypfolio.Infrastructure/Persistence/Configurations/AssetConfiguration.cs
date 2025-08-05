@@ -13,7 +13,8 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
         builder.Property(a => a.Name).IsRequired();
 
         builder.Property(a => a.AverageBuyPrice).HasPrecision(18, 4);
-        builder.Property(a => a.Balance).HasPrecision(18, 6);
+        builder.Property(a => a.FreeBalance).HasPrecision(18, 6);
+        builder.Property(a => a.LockedBalance).HasPrecision(18, 6);
         builder.Property(a => a.UsdValue).HasPrecision(18, 2);
     }
 }

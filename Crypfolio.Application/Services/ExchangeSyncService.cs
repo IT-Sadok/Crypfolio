@@ -39,9 +39,10 @@ public class ExchangeSyncService : IExchangeSyncService
             var entity = new Asset
             {
                 Ticker = asset.Ticker,
-                Balance = asset.FreeBalance + asset.LockedBalance,
+                FreeBalance = asset.FreeBalance,
+                LockedBalance = asset.LockedBalance,
                 ExchangeAccountId = account.Id,
-                RetrievedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
             };
 
             await _unitOfWork.Assets.UpsertAssetAsync(entity, cancellationToken);

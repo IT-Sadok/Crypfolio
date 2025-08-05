@@ -9,7 +9,7 @@ public class BinanceApiService : IExchangeApiService
 {
     private readonly HttpClient _httpClient;
     public ExchangeName ExchangeName => ExchangeName.Binance;
-    
+
     public BinanceApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -29,6 +29,7 @@ public class BinanceApiService : IExchangeApiService
                 FreeBalance = decimal.Parse(b.Free),
                 LockedBalance = decimal.Parse(b.Locked)
             }).ToList() ?? new();
+
     }
 }
 

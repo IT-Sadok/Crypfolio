@@ -6,7 +6,8 @@ public class AssetCreateDto
 {
     public string Ticker { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public decimal Balance { get; set; }
+    public decimal FreeBalance { get; set; }
+    public decimal LockedBalance { get; set; }
     public decimal AverageBuyPrice { get; set; }
     public Guid? WalletId { get; set; }
     public Guid? ExchangeAccountId { get; set; }

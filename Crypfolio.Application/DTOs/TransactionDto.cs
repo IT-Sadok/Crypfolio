@@ -5,7 +5,9 @@ namespace Crypfolio.Application.DTOs;
 public class TransactionDto
 {
     public Guid Id { get; set; }
-    public Guid AssetId { get; set; } 
+
+    public Guid? AssetFromId { get; set; }
+    public Guid? AssetToId { get; set; }
 
     public Guid? WalletId { get; set; }
     public Guid? ExchangeAccountId { get; set; }

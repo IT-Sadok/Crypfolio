@@ -1,4 +1,3 @@
-using Crypfolio.Domain.Abstract;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Crypfolio.Domain.Entities;

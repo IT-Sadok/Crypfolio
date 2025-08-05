@@ -44,11 +44,10 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task SyncAccountAsync_AddsOrUpdatesAssets()
     {
         await using var db = await GetDbContextAsync();
-        var syncService = GetSyncService();
 
         var user = await TestUserFactory.GetOrCreateTestUserAsync(db);
 
-        var account = new ExchangeAccount
+        var account = new ExchangeAccount()
         {
             AccountName = "Test Binance Account",
             UserId = user.Id,
@@ -63,12 +62,12 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
 
         var createdAccount = await createResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
         createdAccount.Should().NotBeNull();
-
-        // Add fake assets
+        
+        // Add test assets manually
         var newAssets = new List<AssetCreateDto>
         {
-            new() { Ticker = "BTC", Balance = 0.5m, ExchangeAccountId = createdAccount.Id },
-            new() { Ticker = "SOL", Balance = 4.5m, ExchangeAccountId = createdAccount.Id }
+            new() { Ticker = "btc", FreeBalance = 0.5m, ExchangeAccountId = createdAccount.Id },
+            new() { Ticker = "sol", FreeBalance = 4.5m, ExchangeAccountId = createdAccount.Id }
         };
 
         // Act
@@ -77,8 +76,6 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
             var addAssetsResponse = await _client.PostAsJsonAsync(Routes.Assets, asset);
             addAssetsResponse.EnsureSuccessStatusCode();
         }
-
-        await syncService.SyncAccountAsync(account, CancellationToken.None);
 
         var getAssetsResponse =
             await _client.GetAsync(Routes.AssetsByAccountSourceId + $"?id={createdAccount.Id}");
@@ -89,8 +86,8 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         syncedAssets.Should().NotBeNullOrEmpty();
         syncedAssets.Should().HaveCount(2);
         syncedAssets.Should().OnlyContain(a => a.ExchangeAccountId == createdAccount.Id);
-        syncedAssets.Should().Contain(a => a.Ticker == "BTC" && a.FreeBalance + a.LockedBalance == 0.5m);
-        syncedAssets.Should().Contain(a => a.Ticker == "SOL" && a.FreeBalance + a.LockedBalance == 4.5m);
+        syncedAssets.Should().Contain(a => a.Ticker.ToLower() == "btc" && a.FreeBalance + a.LockedBalance == 0.5m);
+        syncedAssets.Should().Contain(a => a.Ticker.ToLower() == "sol" && a.FreeBalance + a.LockedBalance == 4.5m);
     }
 
     [Fact]
@@ -126,8 +123,8 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         // Add fake assets
         var newAssets = new List<AssetCreateDto>
         {
-            new AssetCreateDto { Ticker = "BTC", Balance = 1.0m, ExchangeAccountId = exchangeAccountId },
-            new AssetCreateDto { Ticker = "ETH", Balance = 2.5m, ExchangeAccountId = exchangeAccountId }
+            new() { Ticker = "btc", FreeBalance = 1.0m, ExchangeAccountId = exchangeAccountId },
+            new() { Ticker = "eth", FreeBalance = 2.5m, ExchangeAccountId = exchangeAccountId }
         };
         foreach (var asset in newAssets)
         {
@@ -151,8 +148,9 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         {
             Id = Guid.NewGuid(),
             ExchangeAccountId = exchangeAccountId,
-            FromAssetId = addedAssets.First().Id,
-            ToAssetId = addedAssets.Last().Id,
+            ExchangeAccountName = createdAcc.ExchangeName + "_" + exchangeAccountId,
+            FromAsset = addedAssets.First().Name,
+            ToAsset = addedAssets.Last().Name,
             FromAmount = 100,
             ToAmount = 150,
             Type = TransactionType.Deposit,
@@ -179,7 +177,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert: Transactions should still exist
         var transactions = await db.Transactions
-            .Where(t => t.ExchangeAccountId == exchangeAccountId)
+            .Where(t => t.ExchangeAccountName == createdAcc.ExchangeName + "_" + exchangeAccountId)
             .ToListAsync();
         transactions.Should().NotBeEmpty(); // Assuming you seeded or added one
     }

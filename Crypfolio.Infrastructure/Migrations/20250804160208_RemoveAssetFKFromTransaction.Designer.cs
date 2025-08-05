@@ -4,6 +4,7 @@ using Crypfolio.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Crypfolio.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250804160208_RemoveAssetFKFromTransaction")]
+    partial class RemoveAssetFKFromTransaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,9 +261,6 @@ namespace Crypfolio.Infrastructure.Migrations
                     b.Property<Guid?>("ExchangeAccountId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ExchangeAccountName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ExchangeOrderId")
                         .HasColumnType("nvarchar(max)");
 
@@ -309,9 +309,6 @@ namespace Crypfolio.Infrastructure.Migrations
 
                     b.Property<Guid?>("WalletId1")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("WalletName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -553,7 +550,7 @@ namespace Crypfolio.Infrastructure.Migrations
                     b.HasOne("Crypfolio.Domain.Entities.ExchangeAccount", "ExchangeAccount")
                         .WithMany("Transactions")
                         .HasForeignKey("ExchangeAccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Crypfolio.Domain.Entities.Wallet", "Wallet")
                         .WithMany()

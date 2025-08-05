@@ -44,7 +44,6 @@ public class WalletService : IWalletService
         
         wallet.AccountName = walletDto.Name;
         wallet.WalletType = walletDto.WalletType;
-        wallet.Blockchain = walletDto.Blockchain;
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         

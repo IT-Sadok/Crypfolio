@@ -4,6 +4,7 @@ using Crypfolio.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Crypfolio.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250804122355_RemoveAccountSource")]
+    partial class RemoveAccountSource
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,20 +249,11 @@ namespace Crypfolio.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AssetId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AssetId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("BlockchainTxHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("ExchangeAccountId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ExchangeAccountName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExchangeOrderId")
                         .HasColumnType("nvarchar(max)");
@@ -268,8 +262,8 @@ namespace Crypfolio.Infrastructure.Migrations
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
-                    b.Property<string>("FeeAsset")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("FeeAssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FromAddress")
                         .HasColumnType("nvarchar(max)");
@@ -278,8 +272,8 @@ namespace Crypfolio.Infrastructure.Migrations
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
-                    b.Property<string>("FromAsset")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("FromAssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 6)
@@ -298,8 +292,8 @@ namespace Crypfolio.Infrastructure.Migrations
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
-                    b.Property<string>("ToAsset")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("ToAssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -310,16 +304,15 @@ namespace Crypfolio.Infrastructure.Migrations
                     b.Property<Guid?>("WalletId1")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("WalletName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetId");
-
-                    b.HasIndex("AssetId1");
-
                     b.HasIndex("ExchangeAccountId");
+
+                    b.HasIndex("FeeAssetId");
+
+                    b.HasIndex("FromAssetId");
+
+                    b.HasIndex("ToAssetId");
 
                     b.HasIndex("WalletId");
 
@@ -542,18 +535,24 @@ namespace Crypfolio.Infrastructure.Migrations
 
             modelBuilder.Entity("Crypfolio.Domain.Entities.Transaction", b =>
                 {
-                    b.HasOne("Crypfolio.Domain.Entities.Asset", null)
-                        .WithMany("TransactionsFrom")
-                        .HasForeignKey("AssetId");
-
-                    b.HasOne("Crypfolio.Domain.Entities.Asset", null)
-                        .WithMany("TransactionsTo")
-                        .HasForeignKey("AssetId1");
-
                     b.HasOne("Crypfolio.Domain.Entities.ExchangeAccount", "ExchangeAccount")
                         .WithMany("Transactions")
                         .HasForeignKey("ExchangeAccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Crypfolio.Domain.Entities.Asset", "FeeAsset")
+                        .WithMany()
+                        .HasForeignKey("FeeAssetId");
+
+                    b.HasOne("Crypfolio.Domain.Entities.Asset", "FromAsset")
+                        .WithMany("TransactionsFrom")
+                        .HasForeignKey("FromAssetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Crypfolio.Domain.Entities.Asset", "ToAsset")
+                        .WithMany("TransactionsTo")
+                        .HasForeignKey("ToAssetId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Crypfolio.Domain.Entities.Wallet", "Wallet")
                         .WithMany()
@@ -565,6 +564,12 @@ namespace Crypfolio.Infrastructure.Migrations
                         .HasForeignKey("WalletId1");
 
                     b.Navigation("ExchangeAccount");
+
+                    b.Navigation("FeeAsset");
+
+                    b.Navigation("FromAsset");
+
+                    b.Navigation("ToAsset");
 
                     b.Navigation("Wallet");
                 });

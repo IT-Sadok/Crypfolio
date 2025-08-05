@@ -32,17 +32,31 @@ public static class ExchangeAccountEndpoints
         endpoints.MapPost(Routes.ExchangeAccounts, async (
             ExchangeAccountCreateDto dto,
             [FromServices] IExchangeAccountService service,
-            [FromServices] IUnitOfWork unitOfWork,
-            [FromServices] IExchangeSyncService syncService,
+            // [FromServices] IUnitOfWork unitOfWork,
+            // [FromServices] IExchangeSyncService syncService,
             CancellationToken ct) =>
         {
             var result = await service.CreateExchangeAccountAsync(dto, ct);
 
-            var createdEntity = await unitOfWork.ExchangeAccounts.GetByIdAsync(result.Id, ct);
-            if (createdEntity is not null)
-                await syncService.SyncAccountAsync(createdEntity, ct);
+            // var createdEntity = await unitOfWork.ExchangeAccounts.GetByIdAsync(result.Id, ct);
+            // if (createdEntity is not null)
+            //     await syncService.SyncAccountAsync(createdEntity, ct);
 
             return Results.Created($"{Routes.ExchangeAccounts}/{result.Id}", result);
+        });
+        
+        endpoints.MapPost(Routes.ExchangeAccountsSync, async (
+            [FromQuery] Guid id,
+            [FromServices] IExchangeSyncService syncService,
+            [FromServices] IUnitOfWork unitOfWork,
+            CancellationToken ct) =>
+        {
+            var account = await unitOfWork.ExchangeAccounts.GetByIdAsync(id, ct);
+            if (account is null) return Results.NotFound();
+
+            await syncService.SyncAccountAsync(account, ct);
+
+            return Results.Ok();
         });
         
         endpoints.MapPut(Routes.ExchangeAccountsById, async (Guid id, ExchangeAccountDto dto, [FromServices] IExchangeAccountService service, CancellationToken ct) =>

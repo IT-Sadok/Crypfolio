@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -66,14 +67,21 @@ public class AssetRepository : IAssetRepository
             asset.ExchangeAccountId ?? asset.WalletId, 
             cancellationToken);
 
+        if ((asset.WalletId == null && asset.ExchangeAccountId == null) ||
+            (asset.WalletId != null && asset.ExchangeAccountId != null))
+        {
+            throw new ValidationException("Asset must belong to either a wallet or an exchange account, not both.");
+        }
+        
         if (existing is null)
         {
             await _context.Assets.AddAsync(asset, cancellationToken);
         }
         else
         {
-            existing.Balance = asset.Balance;
-            existing.RetrievedAt = asset.RetrievedAt;
+            existing.FreeBalance = asset.FreeBalance;
+            existing.LockedBalance = asset.LockedBalance;
+            existing.UpdatedAt = asset.UpdatedAt;
             _context.Assets.Update(existing);
         }
     }
