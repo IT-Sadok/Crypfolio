@@ -6,4 +6,5 @@ namespace Crypfolio.Application.Interfaces;
 public interface IExchangeSyncService
 {
     Task SyncAccountAsync(ExchangeAccount account, CancellationToken cancellationToken);
+    Task<bool> SyncAccountByIdAsync(Guid accountId, CancellationToken ct);
 }

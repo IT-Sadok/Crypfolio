@@ -2,7 +2,7 @@ using Crypfolio.Domain.Enums;
 
 namespace Crypfolio.Application.DTOs;
 
-public class ExchangeAccountCreateDto
+public class ExchangeAccountCreateModel
 {
     public string UserId { get; set; } = default!;
     public string AccountName { get; set; } = default!;

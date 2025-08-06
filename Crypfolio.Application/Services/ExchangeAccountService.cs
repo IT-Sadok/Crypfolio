@@ -3,19 +3,22 @@ using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Domain.Entities;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.Application.Services;
 
-// CRUD, validation, dto transformation
 public class ExchangeAccountService : IExchangeAccountService
 {
     private readonly IExchangeAccountRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public ExchangeAccountService(IUnitOfWork unitOfWork)
+    private readonly ILogger<ExchangeAccountService> _logger;
+    
+    public ExchangeAccountService(IUnitOfWork unitOfWork, ILogger<ExchangeAccountService> logger)
     {
         _repository = unitOfWork.ExchangeAccounts;
         _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<ExchangeAccountDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -36,17 +39,17 @@ public class ExchangeAccountService : IExchangeAccountService
         return account?.Adapt<ExchangeAccountDto>();
     }
 
-    public async Task<ExchangeAccountDto> CreateExchangeAccountAsync(ExchangeAccountCreateDto dto, CancellationToken cancellationToken = default)
+    public async Task<ExchangeAccountDto> CreateExchangeAccountAsync(ExchangeAccountCreateModel model, CancellationToken cancellationToken = default)
     {
         var entity = new ExchangeAccount
         {
-            UserId = dto.UserId,
+            UserId = model.UserId,
             //User = new() { Id = dto.UserId },
-            AccountName = dto.AccountName,
-            ExchangeName = dto.ExchangeName,
-            ApiKeyEncrypted = dto.ApiKey,
-            ApiSecretEncrypted = dto.ApiSecret,
-            ApiPassphrase = dto.ApiPassphrase,
+            AccountName = model.AccountName,
+            ExchangeName = model.ExchangeName,
+            ApiKeyEncrypted = model.ApiKey,
+            ApiSecretEncrypted = model.ApiSecret,
+            ApiPassphrase = model.ApiPassphrase,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -88,10 +91,39 @@ public class ExchangeAccountService : IExchangeAccountService
             await _repository.DeleteAsync(id, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            _logger.LogError(ex, "Failed to delete entity with ID {Id}", id);
             throw;
         }
+    }
+    
+    public async Task<PaginatedResultDto<ExchangeAccountDto>> GetPaginatedAsync(ExchangeAccountQueryParams query, CancellationToken ct)
+    {
+        var accountsQuery = _unitOfWork.ExchangeAccounts.GetQueryable();
+    
+        if (query.UserId.HasValue)
+            accountsQuery = accountsQuery.Where(x => x.UserId == query.UserId.Value.ToString());
+
+        var totalCount = await accountsQuery.CountAsync(ct);
+        var items = await accountsQuery
+            .Skip((query.PageNumber - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(x => new ExchangeAccountDto
+            {
+                Id = x.Id,
+                AccountName = x.AccountName,
+                ExchangeName = x.ExchangeName,
+                // map other properties
+            })
+            .ToListAsync(ct);
+
+        return new PaginatedResultDto<ExchangeAccountDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = query.PageNumber,
+            PageSize = query.PageSize
+        };
     }
 }

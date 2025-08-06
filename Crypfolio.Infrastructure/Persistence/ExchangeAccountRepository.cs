@@ -1,16 +1,19 @@
 using Crypfolio.Application.Interfaces;
 using Crypfolio.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.Infrastructure.Persistence;
 
 public class ExchangeAccountRepository : IExchangeAccountRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<ExchangeAccountRepository> _logger;
 
-    public ExchangeAccountRepository(ApplicationDbContext context)
+    public ExchangeAccountRepository(ApplicationDbContext context, ILogger<ExchangeAccountRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<ExchangeAccount>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -49,10 +52,22 @@ public class ExchangeAccountRepository : IExchangeAccountRepository
             if (account is not null)
                 _context.ExchangeAccounts.Remove(account);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            _logger.LogError(ex, "Failed to delete entity with ID {Id}", id);
             throw;
         }
+    }
+    
+    public IQueryable<ExchangeAccount> GetQueryable(bool includeRelated = false)
+    {
+        var query = _context.ExchangeAccounts.AsQueryable();
+
+        if (includeRelated)
+        {
+            query = query.Include(x => x.Assets); // or other navigation properties
+        }
+
+        return query;
     }
 }

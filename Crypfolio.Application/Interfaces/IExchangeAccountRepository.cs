@@ -9,4 +9,6 @@ public interface IExchangeAccountRepository
     Task<ExchangeAccount?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, bool isTracking = false);
     Task AddAsync(ExchangeAccount account, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    
+    IQueryable<ExchangeAccount> GetQueryable(bool includeRelated = false);
 }

@@ -46,6 +46,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             // Register IExchangeApiService for DI resolution
             services.AddSingleton<IExchangeApiService>(provider =>
                 provider.GetRequiredService<BinanceApiService>());
+
+            services.AddLogging();
         });
     }
     

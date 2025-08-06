@@ -16,10 +16,19 @@ public static class ExchangeAccountEndpoints
             return Results.Ok(allAccounts);
         });
         
+        endpoints.MapGet(Routes.ExchangeAccountsPaginated,
+            async ([FromServices] IExchangeAccountService service,
+                [AsParameters] ExchangeAccountQueryParams query,
+                CancellationToken ct) =>
+            {
+                var result = await service.GetPaginatedAsync(query, ct);
+                return Results.Ok(result);
+            });
+        
         endpoints.MapGet(Routes.ExchangeAccountsByUserId, 
             async ([FromServices] IExchangeAccountService service, [AsParameters] ExchangeAccountQueryParams query, CancellationToken ct) =>
         {
-            var accounts = await service.GetAllAsync(query.UserId, ct);
+            var accounts = await service.GetAllAsync(query.UserId.ToString(), ct);
             return Results.Ok(accounts);
         });
 
@@ -30,13 +39,13 @@ public static class ExchangeAccountEndpoints
         });
         
         endpoints.MapPost(Routes.ExchangeAccounts, async (
-            ExchangeAccountCreateDto dto,
+            ExchangeAccountCreateModel model,
             [FromServices] IExchangeAccountService service,
             // [FromServices] IUnitOfWork unitOfWork,
             // [FromServices] IExchangeSyncService syncService,
             CancellationToken ct) =>
         {
-            var result = await service.CreateExchangeAccountAsync(dto, ct);
+            var result = await service.CreateExchangeAccountAsync(model, ct);
 
             // var createdEntity = await unitOfWork.ExchangeAccounts.GetByIdAsync(result.Id, ct);
             // if (createdEntity is not null)
@@ -48,15 +57,10 @@ public static class ExchangeAccountEndpoints
         endpoints.MapPost(Routes.ExchangeAccountsSync, async (
             [FromQuery] Guid id,
             [FromServices] IExchangeSyncService syncService,
-            [FromServices] IUnitOfWork unitOfWork,
             CancellationToken ct) =>
         {
-            var account = await unitOfWork.ExchangeAccounts.GetByIdAsync(id, ct);
-            if (account is null) return Results.NotFound();
-
-            await syncService.SyncAccountAsync(account, ct);
-
-            return Results.Ok();
+            var result = await syncService.SyncAccountByIdAsync(id, ct);
+            return result ? Results.Ok() : Results.NotFound();
         });
         
         endpoints.MapPut(Routes.ExchangeAccountsById, async (Guid id, ExchangeAccountDto dto, [FromServices] IExchangeAccountService service, CancellationToken ct) =>

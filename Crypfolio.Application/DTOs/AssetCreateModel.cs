@@ -2,7 +2,7 @@ using Crypfolio.Domain.Enums;
 
 namespace Crypfolio.Application.DTOs;
 
-public class AssetCreateDto
+public class AssetCreateModel
 {
     public string Ticker { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

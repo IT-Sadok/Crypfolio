@@ -9,6 +9,7 @@ using Crypfolio.IntegrationTests.Helpers;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.IntegrationTests.Tests;
 
@@ -34,15 +35,12 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task CreateExchangeAccount_ReturnsSuccessAndPersists()
     {
         // Arrange
-        var expectedAssets = new List<AssetDto> 
-        { 
-            new() { Ticker = "BTC", FreeBalance = 0.5m}, 
-            new() { Ticker = "ETH", FreeBalance = 1.2m }
-        };
+        var logger = _scopeFactory.CreateScope()
+            .ServiceProvider.GetRequiredService<ILogger<ExchangeSyncServiceTests>>();
         
         var user = await GetTestUserAsync();
         
-        var dto = new ExchangeAccountCreateDto
+        var dto = new ExchangeAccountCreateModel
         {
             UserId = user.Id,
             AccountName = "Binance Test Account",
@@ -58,7 +56,7 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("CreateExchangeAccount failed: " + error);
+            logger.LogError("CreateExchangeAccount failed: " + error);
         }
         
         // Assert
@@ -74,9 +72,12 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task GetAllExchangeAccounts_ReturnsListContainingCreated()
     {
         // Arrange
+        var logger = _scopeFactory.CreateScope()
+            .ServiceProvider.GetRequiredService<ILogger<ExchangeAccountApiTests>>();
+        
         var user = await GetTestUserAsync();
         
-        var dto = new ExchangeAccountCreateDto
+        var dto = new ExchangeAccountCreateModel
         {
             UserId = user.Id,
             AccountName = "Test Account",
@@ -89,13 +90,13 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         postResponse.EnsureSuccessStatusCode();
         
         // Act
-        var getResponse = await _client.GetAsync(Routes.ExchangeAccountsByUserId + $"?userId={dto.UserId}");
+        var getResponse = await _client.GetAsync(Routes.ExchangeAccountsByUserId + $"?userId={dto.UserId}&pageNumber=1&pageSize=10");
         
         // Debug info (optional)
         if (!getResponse.IsSuccessStatusCode)
         {
             var error = await getResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("GetAllExchangeAccounts failed: " + error);
+            logger.LogError("GetAllExchangeAccounts failed: " + error);
         }
         
         // Assert
@@ -110,9 +111,12 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task GetExchangeAccountById_ReturnsCorrectItem()
     {
         // Arrange
+        var logger = _scopeFactory.CreateScope()
+            .ServiceProvider.GetRequiredService<ILogger<ExchangeAccountApiTests>>();
+        
         var user = await GetTestUserAsync();
 
-        var dto = new ExchangeAccountCreateDto
+        var dto = new ExchangeAccountCreateModel
         {
             UserId = user.Id,
             AccountName = "Account To Retrieve",
@@ -127,7 +131,7 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         if (!createResponse.IsSuccessStatusCode)
         {
             var error = await createResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("Response failed: " + error);
+            logger.LogError("Response failed: " + error);
         }
         
         // Assert
@@ -141,7 +145,7 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         if (!getResponse.IsSuccessStatusCode)
         {
             var error = await getResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("Response failed: " + error);
+            logger.LogError("Response failed: " + error);
         }
         
         // Assert
@@ -157,9 +161,12 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task DeleteExchangeAccount_RemovesSuccessfully()
     {
         // Arrange
+        var logger = _scopeFactory.CreateScope()
+            .ServiceProvider.GetRequiredService<ILogger<ExchangeAccountApiTests>>();
+        
         var user = await GetTestUserAsync();
 
-        var dto = new ExchangeAccountCreateDto
+        var dto = new ExchangeAccountCreateModel
         {
             UserId = user.Id,
             AccountName = "Delete Me",
@@ -179,7 +186,7 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         if (!deleteResponse.IsSuccessStatusCode)
         {
             var error = await deleteResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("Response failed: " + error);
+            logger.LogError("Response failed: " + error);
         }
         
         // Assert

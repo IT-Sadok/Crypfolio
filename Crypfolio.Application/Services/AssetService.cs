@@ -41,7 +41,7 @@ public class AssetService : IAssetService
         return asset?.Adapt<AssetDto>();
     }
 
-    public async Task AddAsync(AssetCreateDto dto, CancellationToken cancellationToken)
+    public async Task AddAsync(AssetCreateModel dto, CancellationToken cancellationToken)
     {
         var asset = dto.Adapt<Asset>();
         await _repository.AddAsync(asset, cancellationToken);

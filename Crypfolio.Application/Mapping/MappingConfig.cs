@@ -7,7 +7,7 @@ public static class MappingConfig
 {
     public static void RegisterMappings()
     {
-        TypeAdapterConfig<AssetCreateDto, Asset>.NewConfig()
+        TypeAdapterConfig<AssetCreateModel, Asset>.NewConfig()
             .Map(asset => asset.Ticker, dto => LowerCaseValue(dto.Ticker))
             .IgnoreNullValues(true);
         TypeAdapterConfig<Asset, AssetDto>.NewConfig()

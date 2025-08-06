@@ -33,7 +33,7 @@ public static class AssetEndpoints
             return asset is null ? null : Results.Ok(asset);
         });
 
-        app.MapPost(Routes.Assets, async (AssetCreateDto dto, [FromServices] IAssetService service, CancellationToken ct) =>
+        app.MapPost(Routes.Assets, async (AssetCreateModel dto, [FromServices] IAssetService service, CancellationToken ct) =>
         {
             await service.AddAsync(dto, ct);
             return Results.Ok();

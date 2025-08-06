@@ -3,17 +3,14 @@ using System.Net.Http.Json;
 using Crypfolio.API.Constants;
 using Crypfolio.Application.DTOs;
 using Crypfolio.Application.Interfaces;
-using Crypfolio.Application.Services;
 using Crypfolio.Domain.Entities;
 using Crypfolio.Domain.Enums;
 using Crypfolio.Infrastructure.Persistence;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Crypfolio.IntegrationTests.Helpers;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
+using Microsoft.Extensions.Logging;
 
 namespace Crypfolio.IntegrationTests.Tests;
 
@@ -64,7 +61,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         createdAccount.Should().NotBeNull();
         
         // Add test assets manually
-        var newAssets = new List<AssetCreateDto>
+        var newAssets = new List<AssetCreateModel>
         {
             new() { Ticker = "btc", FreeBalance = 0.5m, ExchangeAccountId = createdAccount.Id },
             new() { Ticker = "sol", FreeBalance = 4.5m, ExchangeAccountId = createdAccount.Id }
@@ -95,9 +92,12 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
     {
         // Arrange
         await using var db = await GetDbContextAsync();
+        var logger = _scopeFactory.CreateScope()
+            .ServiceProvider.GetRequiredService<ILogger<ExchangeSyncServiceTests>>();
+        
         var user = await TestUserFactory.GetOrCreateTestUserAsync(db);
 
-        var createDto = new ExchangeAccountCreateDto
+        var createDto = new ExchangeAccountCreateModel
         {
             UserId = user.Id,
             AccountName = "Binance Test",
@@ -111,7 +111,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         if (!createAccResponse.IsSuccessStatusCode)
         {
             var error = await createAccResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("Response failed: " + error);
+            logger.LogError("Response failed: " + error);
         }
 
         createAccResponse.EnsureSuccessStatusCode();
@@ -121,7 +121,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         var exchangeAccountId = createdAcc!.Id;
 
         // Add fake assets
-        var newAssets = new List<AssetCreateDto>
+        var newAssets = new List<AssetCreateModel>
         {
             new() { Ticker = "btc", FreeBalance = 1.0m, ExchangeAccountId = exchangeAccountId },
             new() { Ticker = "eth", FreeBalance = 2.5m, ExchangeAccountId = exchangeAccountId }
@@ -138,7 +138,7 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         if (!getAssetsResponse.IsSuccessStatusCode)
         {
             var error = await getAssetsResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("Response failed: " + error);
+            logger.LogError("Response failed: " + error);
         }
 
         getAssetsResponse.EnsureSuccessStatusCode();

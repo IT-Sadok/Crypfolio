@@ -2,7 +2,7 @@ using Crypfolio.Domain.Enums;
 
 namespace Crypfolio.Application.DTOs;
 
-public class WalletCreateDto
+public class WalletCreateModel
 {
     public string Name { get; set; }
     public string? Address { get; set; }

@@ -25,6 +25,16 @@ public class ExchangeSyncService : IExchangeSyncService
         
         _apiServices = services.ToDictionary(s => s.ExchangeName);
     }
+    
+    public async Task<bool> SyncAccountByIdAsync(Guid accountId, CancellationToken ct)
+    {
+        var account = await _unitOfWork.ExchangeAccounts.GetByIdAsync(accountId, ct);
+        if (account is null)
+            return false;
+
+        await SyncAccountAsync(account, ct);
+        return true;
+    }
 
     public async Task SyncAccountAsync(ExchangeAccount account, CancellationToken cancellationToken)
     {

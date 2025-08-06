@@ -3,6 +3,7 @@ using Crypfolio.Api.Endpoints;
 using Crypfolio.API.Endpoints;
 using Crypfolio.Application.Mapping;
 using Crypfolio.Infrastructure.Extensions;
+using Crypfolio.Middleware;
 
 MappingConfig.RegisterMappings();
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,7 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapAssetEndpoints();
 app.MapAuthEndpoints();
