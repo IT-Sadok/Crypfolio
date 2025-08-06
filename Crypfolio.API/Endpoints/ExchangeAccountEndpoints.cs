@@ -16,7 +16,7 @@ public static class ExchangeAccountEndpoints
             return Results.Ok(allAccounts);
         });
         
-        endpoints.MapGet(Routes.ExchangeAccountsPaginated,
+        endpoints.MapGet(Routes.ExchangeAccounts,
             async ([FromServices] IExchangeAccountService service,
                 [AsParameters] ExchangeAccountQueryParams query,
                 CancellationToken ct) =>

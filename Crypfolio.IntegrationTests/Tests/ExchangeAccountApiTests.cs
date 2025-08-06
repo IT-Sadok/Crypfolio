@@ -35,9 +35,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task CreateExchangeAccount_ReturnsSuccessAndPersists()
     {
         // Arrange
-        var logger = _scopeFactory.CreateScope()
-            .ServiceProvider.GetRequiredService<ILogger<ExchangeSyncServiceTests>>();
-        
         var user = await GetTestUserAsync();
         
         var dto = new ExchangeAccountCreateModel
@@ -51,13 +48,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         
         // Act
         var response = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, dto);
-
-        // Debug info (optional)
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            logger.LogError("CreateExchangeAccount failed: " + error);
-        }
         
         // Assert
         response.EnsureSuccessStatusCode();
@@ -72,9 +62,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task GetAllExchangeAccounts_ReturnsListContainingCreated()
     {
         // Arrange
-        var logger = _scopeFactory.CreateScope()
-            .ServiceProvider.GetRequiredService<ILogger<ExchangeAccountApiTests>>();
-        
         var user = await GetTestUserAsync();
         
         var dto = new ExchangeAccountCreateModel
@@ -92,13 +79,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
         // Act
         var getResponse = await _client.GetAsync(Routes.ExchangeAccountsByUserId + $"?userId={dto.UserId}&pageNumber=1&pageSize=10");
         
-        // Debug info (optional)
-        if (!getResponse.IsSuccessStatusCode)
-        {
-            var error = await getResponse.Content.ReadAsStringAsync();
-            logger.LogError("GetAllExchangeAccounts failed: " + error);
-        }
-        
         // Assert
         getResponse.EnsureSuccessStatusCode();
         var result = await getResponse.Content.ReadFromJsonAsync<List<ExchangeAccountDto>>();
@@ -111,9 +91,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task GetExchangeAccountById_ReturnsCorrectItem()
     {
         // Arrange
-        var logger = _scopeFactory.CreateScope()
-            .ServiceProvider.GetRequiredService<ILogger<ExchangeAccountApiTests>>();
-        
         var user = await GetTestUserAsync();
 
         var dto = new ExchangeAccountCreateModel
@@ -127,26 +104,12 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
 
         var createResponse = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, dto);
         
-        // Debug info (optional)
-        if (!createResponse.IsSuccessStatusCode)
-        {
-            var error = await createResponse.Content.ReadAsStringAsync();
-            logger.LogError("Response failed: " + error);
-        }
-        
         // Assert
         createResponse.EnsureSuccessStatusCode();
         var created = await createResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
 
         // Act
         var getResponse = await _client.GetAsync($"{Routes.ExchangeAccounts}/{created!.Id}");
-
-        // Debug info (optional)
-        if (!getResponse.IsSuccessStatusCode)
-        {
-            var error = await getResponse.Content.ReadAsStringAsync();
-            logger.LogError("Response failed: " + error);
-        }
         
         // Assert
         getResponse.EnsureSuccessStatusCode();
@@ -161,9 +124,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
     public async Task DeleteExchangeAccount_RemovesSuccessfully()
     {
         // Arrange
-        var logger = _scopeFactory.CreateScope()
-            .ServiceProvider.GetRequiredService<ILogger<ExchangeAccountApiTests>>();
-        
         var user = await GetTestUserAsync();
 
         var dto = new ExchangeAccountCreateModel
@@ -181,13 +141,6 @@ public class ExchangeAccountApiTests : IClassFixture<CustomWebApplicationFactory
 
         // Act: delete
         var deleteResponse = await _client.DeleteAsync($"{Routes.ExchangeAccounts}/{created!.Id}");
-
-        // Debug
-        if (!deleteResponse.IsSuccessStatusCode)
-        {
-            var error = await deleteResponse.Content.ReadAsStringAsync();
-            logger.LogError("Response failed: " + error);
-        }
         
         // Assert
         deleteResponse.EnsureSuccessStatusCode();

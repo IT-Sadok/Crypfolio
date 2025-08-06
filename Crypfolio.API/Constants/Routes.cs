@@ -19,5 +19,4 @@ public class Routes
     public const string ExchangeAccountsSync = "/api/exchange-accounts/sync";
     public const string ExchangeAccountsById = "/api/exchange-accounts/{id:guid}";
     public const string ExchangeAccountsByUserId = "/api/exchange-accounts/user"; //{userId:guid}
-    public const string ExchangeAccountsPaginated = "/api/exchange-accounts/paginated";
 }

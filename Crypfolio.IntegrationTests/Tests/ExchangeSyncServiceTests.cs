@@ -92,8 +92,6 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
     {
         // Arrange
         await using var db = await GetDbContextAsync();
-        var logger = _scopeFactory.CreateScope()
-            .ServiceProvider.GetRequiredService<ILogger<ExchangeSyncServiceTests>>();
         
         var user = await TestUserFactory.GetOrCreateTestUserAsync(db);
 
@@ -107,13 +105,6 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         var createAccResponse = await _client.PostAsJsonAsync(Routes.ExchangeAccounts, createDto);
-        // Debug
-        if (!createAccResponse.IsSuccessStatusCode)
-        {
-            var error = await createAccResponse.Content.ReadAsStringAsync();
-            logger.LogError("Response failed: " + error);
-        }
-
         createAccResponse.EnsureSuccessStatusCode();
 
         var createdAcc = await createAccResponse.Content.ReadFromJsonAsync<ExchangeAccountDto>();
@@ -134,13 +125,6 @@ public class ExchangeSyncServiceTests : IClassFixture<CustomWebApplicationFactor
 
         var getAssetsResponse =
             await _client.GetAsync(Routes.AssetsByAccountSourceId + $"?id={exchangeAccountId}");
-        // Debug
-        if (!getAssetsResponse.IsSuccessStatusCode)
-        {
-            var error = await getAssetsResponse.Content.ReadAsStringAsync();
-            logger.LogError("Response failed: " + error);
-        }
-
         getAssetsResponse.EnsureSuccessStatusCode();
         var addedAssets = await getAssetsResponse.Content.ReadFromJsonAsync<List<AssetDto>>();
 
