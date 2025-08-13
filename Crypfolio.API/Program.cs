@@ -3,9 +3,21 @@ using Crypfolio.Api.Endpoints;
 using Crypfolio.API.Endpoints;
 using Crypfolio.Application.Mapping;
 using Crypfolio.Infrastructure.Extensions;
+using Azure.Identity;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 
 MappingConfig.RegisterMappings();
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables(); //For Azure overrides
+
+if (!builder.Environment.IsDevelopment())
+{
+    var keyVaultUri = new Uri("https://crypfolio-kv.vault.azure.net/");
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+}
 
 builder.Services.AddMapster();
 builder.Services.AddControllers();
@@ -14,6 +26,15 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddServices();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddExceptionHandler(options =>
+{
+    options.ExceptionHandler = async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { error = "Something went wrong" });
+    };
+});
 
 builder.WebHost.ConfigureLogging(logging =>
     {
