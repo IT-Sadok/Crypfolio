@@ -1,12 +1,14 @@
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Mapster;
 using Crypfolio.Api.Endpoints;
 using Crypfolio.API.Endpoints;
 using Crypfolio.Application.Mapping;
 using Crypfolio.Infrastructure.Extensions;
 using Azure.Identity;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Security.KeyVault.Secrets;
 
 MappingConfig.RegisterMappings();
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -16,7 +18,7 @@ builder.Configuration
 if (!builder.Environment.IsDevelopment())
 {
     var keyVaultUri = new Uri("https://crypfolio-kv.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential(), new KeyVaultSecretManager());
 }
 
 builder.Services.AddMapster();
