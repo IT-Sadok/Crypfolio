@@ -14,7 +14,7 @@ jobs:
     - name: Login to Azure ACR
       uses: azure/docker-login@v2
       with:
-        login-server: crypcontainer.azurecr.io
+        login-server: crypcontainer-gja0g8bwgab2djaj.azurecr.io
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
     - name: Build and push Docker image
@@ -36,5 +36,5 @@ jobs:
     - name: Deploy to App Service
       uses: azure/webapps-deploy@v3
       with:
-        app-name: crypfolio-api  # Your App Service name
+        app-name: crypfolio-api
         images: crypcontainer.azurecr.io/crypfolio.api:latest
