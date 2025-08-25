@@ -18,7 +18,12 @@ builder.Configuration
 if (!builder.Environment.IsDevelopment())
 {
     var keyVaultUri = new Uri("https://crypfolio-kv.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential(), new KeyVaultSecretManager());
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, 
+        new DefaultAzureCredential(new DefaultAzureCredentialOptions
+        {
+            ManagedIdentityClientId = builder.Configuration["AZURE_CLIENT_ID"]  // Loads from env var
+        }), 
+        new KeyVaultSecretManager());
 }
 
 builder.Services.AddMapster();
